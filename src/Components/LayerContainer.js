@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import PathLayer from "./PathLayer";
 
 const LayerContainer = () => {
+	const dispatch = useDispatch();
 	const layers = useSelector((state) => state.svgJson.layers);
 	const [layerElements, setLayerElements] = useState([]);
 	let layerKey = 1;
 
 	const generateLayer = (layer, type) => {
+		dispatch({type: "PUSHLAYERLIST", payload: layer.name})
 		const key = layerKey;
 		if (layer.name.startsWith("layer_")) {
 			setLayerElements((prevState) => [
@@ -28,12 +30,15 @@ const LayerContainer = () => {
 	};
 
 	useEffect(() => {
-		if (layerElements.length === 0 && layers) {
+		if (layers) {
+			if (layerElements.length !== 0) {
+				setLayerElements([])
+			}
 			layers.forEach((layer) => {
 				generateLayer(layer, "normal");
 			});
 		}
-	}, [layers, layerElements]);
+	}, [layers]);
 
 	return (
 		<div id="layer-container" className="overflow-auto">

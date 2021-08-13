@@ -7,11 +7,25 @@ const MyDropzone = () => {
 
     let layerNumber = 1;
     let groupNumber = 1;
+    let fileNameString;
     const fileName = useSelector((state) => state.fileName);
 	const dispatch = useDispatch();
 
+    const parseBlackWhite = value => {
+        if (value === "black" || value === "white"){
+            if (value === "black") {
+                return "#000";
+            } else {
+                return "#fff";
+            }
+        } else {
+            return
+        }
+    }
+
     const editParent = json => {
         json['id'] = 1;
+        json['name'] = fileNameString
         delete json['type'];
         delete json['value'];
         delete json['attributes']['viewBox'];
@@ -52,6 +66,7 @@ const MyDropzone = () => {
         if (path['fill']) {
             path['style'] = "fill";
             path['fillColor'] = path['fill'];
+            path['fillColor'] = parseBlackWhite(path['fillColor'])
             delete path['fill'];
         }else {
             path['style'] = "stroke";
@@ -59,6 +74,7 @@ const MyDropzone = () => {
             path['strokeWidth'] = path['stroke-width'];
             path['strokeLineCap'] = path['stroke-linecap'];
             path['strokeLineJoin'] = path['stroke-linejoin'];
+            path['strokeColor'] = parseBlackWhite(path['strokeColor'])
             delete path['stroke'];
             delete path['stroke-width'];
             delete path['stroke-linecap'];
@@ -97,6 +113,7 @@ const MyDropzone = () => {
     // on drop function
     const onDrop = (acceptedFiles) => {
         const file = acceptedFiles[0];
+        fileNameString = file['name']
         dispatch({type: 'CHANGEFILENAME', payload: file['name']});
         const reader = new FileReader();
         reader.onload = () => {

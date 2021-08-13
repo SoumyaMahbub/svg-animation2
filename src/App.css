@@ -4,3 +4,12 @@
 #selected {
     border: 2px solid rgb(33, 129, 207)!important; 
 }
+.w-90 {
+    width: 90%;
+}
+.h-90 {
+    height: 90%;
+}
+.fs-10p {
+    font-size: 10px !important;
+}
