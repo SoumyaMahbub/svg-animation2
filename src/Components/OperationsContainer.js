@@ -11,6 +11,7 @@ const OperationsContainer = () => {
     const layerList = useSelector((state) => state.layerList);
     const [options, setOptions] = useState([]);
     let newLayerIdx;
+    let foundInGroup = false;
 
     useEffect(() => {
         setOptions([]);
@@ -26,26 +27,59 @@ const OperationsContainer = () => {
         }
     }, [selLayer])
 
-    const findLayerIdx = (layers) => {
+    const findLayerIdx = (layers, groupIdx = "") => {
         layers.forEach((layer, idx) => {
             if (layer.name === selLayer.name) {
-                newLayerIdx = idx+1;
+                newLayerIdx = [idx+1, groupIdx === "" ? "" : groupIdx];
+                foundInGroup = true;
+                return
+            }
+            else if (layer.name.startsWith('group_')) {
+                findLayerIdx(layer['layers'], idx);
+                if (foundInGroup) {
+                    return
+                }
             }
         })
     }
 
     const addEraseLayer = () => {
+
         const eraseLayerJson = {
             type: 'erase',
             name: 'erase_' + $('#erase-layer-select').val(),
             targetEraseMode: 'sequential'   
         }
+
+        foundInGroup = false;
         findLayerIdx(layers);
-        const newLayers = [...layers.slice(0, newLayerIdx), eraseLayerJson, ...layers.slice(newLayerIdx+1)];
-        // dispatch({
-        //     type: 'CHANGESVGJSON',
-        //     payload: newJson
-        // })
+        
+        let newLayers;
+
+        if (newLayerIdx[1] === "") {
+            newLayers = [...layers.slice(0, newLayerIdx[0]), eraseLayerJson, ...layers.slice(newLayerIdx[0])];
+        }
+        else {
+            const BreakException = {};
+            const groupLayer = {...layers[newLayerIdx[1]]};
+            const groupLayers = layers[newLayerIdx[1]]['layers'];
+            try {
+                const newGroupLayers = [...groupLayers.slice(0, newLayerIdx[0]), eraseLayerJson, ...groupLayers.slice(newLayerIdx[0])]
+                groupLayer['layers'] = newGroupLayers;
+                newLayers = [...layers.slice(0, newLayerIdx[1]), groupLayer, ...layers.slice(newLayerIdx[1]+1)];
+                throw BreakException;
+            }
+            catch (e){
+                if (e !== BreakException) throw e;
+            }
+        }
+        
+        const newJson = { ...svgJson };
+        newJson['layers'] = newLayers;
+        dispatch({
+            type: 'CHANGESVGJSON',
+            payload: newJson,
+        })
     }
 
     return (

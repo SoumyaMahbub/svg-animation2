@@ -13,7 +13,7 @@ const LayerContainer = () => {
 	const generateLayer = (layer, type) => {
 		layerList.push(layer.name);
 		const key = layerKey;
-		if (layer.name.startsWith("layer_")) {
+		if (layer.name.startsWith("group_") === false) {
 			setLayerElements((prevState) => [
 				...prevState,
 				<PathLayer key={10000 + key} name={layer.name} type={type} />,
