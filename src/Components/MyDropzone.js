@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from "react-dropzone";
 import { parse } from "svgson";
@@ -10,6 +10,10 @@ const MyDropzone = () => {
     let fileNameString;
     const fileName = useSelector((state) => state.fileName);
 	const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch({type: "REMOVELAYERLIST"})
+    }, [fileName])
 
     const parseBlackWhite = value => {
         if (value === "black" || value === "white"){
@@ -113,7 +117,8 @@ const MyDropzone = () => {
     // on drop function
     const onDrop = (acceptedFiles) => {
         const file = acceptedFiles[0];
-        fileNameString = file['name']
+        fileNameString = file['name'];
+        dispatch({type: 'REMOVESELLAYER'})
         dispatch({type: 'CHANGEFILENAME', payload: file['name']});
         const reader = new FileReader();
         reader.onload = () => {

@@ -1,11 +1,32 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import $ from "jquery";
 
 const PathLayer = (props) => {
 	const dispatch = useDispatch();
 	const layers = useSelector((state) => state.svgJson.layers);
+	const selLayer = useSelector((state) => state.selLayer);
 	let selLayerJson = {}
+
+	useEffect(() => {
+		// if selLayer exists
+		if (Object.keys(selLayer).length !== 0) {
+			// if there is selected element
+			if ($('#selected').length) {
+				$('#selected').removeAttr("id");
+			}
+			const selLayerName = selLayer.name ? selLayer.name : selLayer.targetName;
+			$("[data-layer-name=" + selLayerName + "]").attr('id', 'selected');
+
+		} 
+		// if selLayer doesn't exist
+		else {
+			// if there is selected element
+			if ($('#selected').length) {
+				$("#selected").removeAttr("id");
+			}
+		}
+	}, [selLayer])
 
 	const getSelLayerJson = (layerName, layers) => {
 		let breakException = {}
@@ -34,23 +55,18 @@ const PathLayer = (props) => {
 		const clickedEl = $(e.currentTarget);
 
 		// if there is selected element
-		if ($("#selected").length) {
+		if (Object.keys(selLayer).length !== 0) {
 			// if selected element is not the one clicked
 			if ($("#selected").get(0) !== clickedEl.get(0)) {
-				$("#selected").removeAttr("id");
-				$(clickedEl).attr("id", "selected");
 				getSelLayerJson(
 					clickedEl.children().eq(0).text(),
 					layers
 				);
 				dispatch({type: "CHANGESELLAYER", payload: selLayerJson });
 			} else {
-				$("#selected").removeAttr("id");
-				selLayerJson = {}
 				dispatch({type: "REMOVESELLAYER"})
 			}
 		} else {
-			$(clickedEl).attr("id", "selected");
 			getSelLayerJson(
 				clickedEl.children().eq(0).text(),
 				layers
