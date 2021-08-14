@@ -4,12 +4,14 @@ import PathLayer from "./PathLayer";
 
 const LayerContainer = () => {
 	const dispatch = useDispatch();
-	const layers = useSelector((state) => state.svgJson.layers);
+	const svgJson = useSelector((state) => state.svgJson);
+	const layers = svgJson.layers
 	const [layerElements, setLayerElements] = useState([]);
 	let layerKey = 1;
+	let layerList = [];
 
 	const generateLayer = (layer, type) => {
-		dispatch({type: "PUSHLAYERLIST", payload: layer.name})
+		layerList.push(layer.name);
 		const key = layerKey;
 		if (layer.name.startsWith("layer_")) {
 			setLayerElements((prevState) => [
@@ -34,9 +36,11 @@ const LayerContainer = () => {
 			if (layerElements.length !== 0) {
 				setLayerElements([])
 			}
+			layerList = [];
 			layers.forEach((layer) => {
 				generateLayer(layer, "normal");
 			});
+			dispatch({type: 'CHANGELAYERLIST', payload: layerList});
 		}
 	}, [layers]);
 

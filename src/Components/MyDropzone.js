@@ -9,10 +9,14 @@ const MyDropzone = () => {
     let groupNumber = 1;
     let fileNameString;
     const fileName = useSelector((state) => state.fileName);
+    const layerList = useSelector((state) => state.layerList);
+    const selLayer = useSelector((state) => state.selLayer);
 	const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch({type: "REMOVELAYERLIST"})
+        if (layerList.length) {
+            dispatch({type: "REMOVELAYERLIST"})
+        }
     }, [fileName])
 
     const parseBlackWhite = value => {
@@ -118,7 +122,9 @@ const MyDropzone = () => {
     const onDrop = (acceptedFiles) => {
         const file = acceptedFiles[0];
         fileNameString = file['name'];
-        dispatch({type: 'REMOVESELLAYER'})
+        if (Object.keys(selLayer).length) {
+            dispatch({type: 'REMOVESELLAYER'})
+        }
         dispatch({type: 'CHANGEFILENAME', payload: file['name']});
         const reader = new FileReader();
         reader.onload = () => {

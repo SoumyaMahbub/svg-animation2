@@ -1,7 +1,7 @@
 const layerListReducer = (state=[], action) => {
     switch(action.type) {
-        case "PUSHLAYERLIST":
-            state.push(action.payload);
+        case "CHANGELAYERLIST":
+            state = action.payload;
             return state;
 
         case "REMOVELAYERLIST":

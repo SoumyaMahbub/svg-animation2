@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import $ from "jquery";
 
 const OperationsContainer = () => {
 
+    const dispatch = useDispatch();
     const selLayer = useSelector((state) => state.selLayer);
-    const layers = useSelector((state) => state.svgJson.layers)
+    const svgJson = useSelector((state) => state.svgJson);
+    const layers = svgJson.layers
     const layerList = useSelector((state) => state.layerList);
-    const [options, setOptions] = useState([])
+    const [options, setOptions] = useState([]);
+    let newLayerIdx;
 
     useEffect(() => {
         setOptions([]);
@@ -16,25 +20,32 @@ const OperationsContainer = () => {
             let valueCounter = 1;
             layersBeforeSel.forEach((layer) => {
                 const key = valueCounter;
-                setOptions(prevState => [...prevState, <option key={key} value={key}>{layer}</option>])
+                setOptions(prevState => [...prevState, <option key={key} value={layer}>{layer}</option>])
                 valueCounter++;
             })
         }
     }, [selLayer])
 
-    const findLayerIdx = (layers, ) => {
+    const findLayerIdx = (layers) => {
         layers.forEach((layer, idx) => {
             if (layer.name === selLayer.name) {
-                console.log(idx);
-            } 
+                newLayerIdx = idx+1;
+            }
         })
     }
 
     const addEraseLayer = () => {
-    //     eraseLayerJson = {type: 'erase',
-    //                       name: 'erase_' +   
-    // }
-        findLayerIdx(layers)
+        const eraseLayerJson = {
+            type: 'erase',
+            name: 'erase_' + $('#erase-layer-select').val(),
+            targetEraseMode: 'sequential'   
+        }
+        findLayerIdx(layers);
+        const newLayers = [...layers.slice(0, newLayerIdx), eraseLayerJson, ...layers.slice(newLayerIdx+1)];
+        // dispatch({
+        //     type: 'CHANGESVGJSON',
+        //     payload: newJson
+        // })
     }
 
     return (
