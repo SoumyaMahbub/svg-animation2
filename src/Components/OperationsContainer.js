@@ -5,15 +5,18 @@ import $ from "jquery";
 const OperationsContainer = () => {
 
     const dispatch = useDispatch();
-    const selLayer = useSelector((state) => state.selLayer);
+    const selLayerObj = useSelector((state) => state.selLayer);
+    const selLayer = selLayerObj.layer;
+    const selLayerIdx = selLayerObj.idx;
     const svgJson = useSelector((state) => state.svgJson);
     const layers = svgJson.layers
     const layerList = useSelector((state) => state.layerList);
     const [options, setOptions] = useState([]);
-    let newLayerIdx;
     let foundInGroup = false;
 
+    // selected Layer change
     useEffect(() => {
+        // set Erase Lyaer Options
         setOptions([]);
         if (Object.keys(selLayer).length !== 0) {
             const selLayerIdx = layerList.indexOf(selLayer.name);
@@ -25,61 +28,77 @@ const OperationsContainer = () => {
                 valueCounter++;
             })
         }
+
+        // subtitle input value set
+        const subtitle = selLayer.subtitleEn ? selLayer.subtitleEn : ""
+        $('#subtitle-input').val(subtitle); 
+
+        // draw/erase mode check
+        if (selLayer.type === 'erase' || selLayer.type === "group") {
+            if (selLayer.drawMode === "sequential") {
+                $('#sequentialRadio').prop("checked", true);
+            }else {
+                $('#parallelRadio').prop("checked", true);
+            }
+        }
+
     }, [selLayer])
 
-    const findLayerIdx = (layers, groupIdx = "") => {
-        layers.forEach((layer, idx) => {
-            if (layer.name === selLayer.name) {
-                newLayerIdx = [idx+1, groupIdx === "" ? "" : groupIdx];
-                foundInGroup = true;
-                return
+    const changeSingleLayer = (type, newSelLayerObj) => {
+        let newLayers;
+        if (type === "edit") {
+            if (selLayerIdx[1] === "") {
+                newLayers = [...layers.slice(0, selLayerIdx[0]), newSelLayerObj['layer'], ...layers.slice(selLayerIdx[0]+1)];
+            } else {
+                const groupLayer = {...layers[selLayerIdx[1]]};
+                groupLayer['layers'].splice(selLayerIdx[0], 1, newSelLayerObj['layer']);
+                newLayers = [...layers.slice(0, selLayerIdx[1]), groupLayer, ...layers.slice(selLayerIdx[1]+1)];
             }
-            else if (layer.name.startsWith('group_')) {
-                findLayerIdx(layer['layers'], idx);
-                if (foundInGroup) {
-                    return
-                }
+            dispatch({type: 'CHANGESELLAYER', payload: newSelLayerObj});
+        }
+        else if (type == "add") {
+            if (selLayerIdx[1] === "") {
+                newLayers = [...layers.slice(0, selLayerIdx[0]+1), newSelLayerObj, ...layers.slice(selLayerIdx[0]+1)];
+            }else {
+                const groupLayer = {...layers[selLayerIdx[1]]};
+                groupLayer['layers'].splice(selLayerIdx[0]+1, 0, newSelLayerObj);
+                newLayers = [...layers.slice(0, selLayerIdx[1]), groupLayer, ...layers.slice(selLayerIdx[1]+1)];
             }
-        })
+        }
+        const newJson = { ...svgJson };
+        newJson['layers'] = newLayers; 
+        dispatch({type: 'CHANGESVGJSON', payload: newJson});
     }
 
     const addEraseLayer = () => {
-
         const eraseLayerJson = {
             type: 'erase',
             name: 'erase_' + $('#erase-layer-select').val(),
-            targetEraseMode: 'sequential'   
+            drawMode: 'sequential'   
         }
+        changeSingleLayer('add', eraseLayerJson);
+    }
 
-        foundInGroup = false;
-        findLayerIdx(layers);
-        
-        let newLayers;
+    const changeDrawType = () => {
+        const chosenDrawType = $('input[name="drawTypeRadio"]:checked').attr('data-value');
+        const newSelLayerObj = {...selLayerObj};
+        newSelLayerObj['layer']['drawMode'] = chosenDrawType;
+        changeSingleLayer('edit', newSelLayerObj);
+    }
 
-        if (newLayerIdx[1] === "") {
-            newLayers = [...layers.slice(0, newLayerIdx[0]), eraseLayerJson, ...layers.slice(newLayerIdx[0])];
-        }
+    const updateSubtitle = (e) => {
+        if (e.target.value !== "") {
+            const newSelLayerObj = {...selLayerObj};
+            newSelLayerObj['layer']['subtitleEn'] = e.target.value;
+            changeSingleLayer('edit', newSelLayerObj);
+        } 
         else {
-            const BreakException = {};
-            const groupLayer = {...layers[newLayerIdx[1]]};
-            const groupLayers = layers[newLayerIdx[1]]['layers'];
-            try {
-                const newGroupLayers = [...groupLayers.slice(0, newLayerIdx[0]), eraseLayerJson, ...groupLayers.slice(newLayerIdx[0])]
-                groupLayer['layers'] = newGroupLayers;
-                newLayers = [...layers.slice(0, newLayerIdx[1]), groupLayer, ...layers.slice(newLayerIdx[1]+1)];
-                throw BreakException;
-            }
-            catch (e){
-                if (e !== BreakException) throw e;
+            if (selLayer.subtitleEn) {
+                const newSelLayerObj = {...selLayerObj};
+                delete newSelLayerObj['layer']['subtitleEn'];
+                changeSingleLayer('edit', newSelLayerObj);
             }
         }
-        
-        const newJson = { ...svgJson };
-        newJson['layers'] = newLayers;
-        dispatch({
-            type: 'CHANGESVGJSON',
-            payload: newJson,
-        })
     }
 
     return (
@@ -87,7 +106,7 @@ const OperationsContainer = () => {
 
             <div className={selLayer.name ? "input-group mb-3" : "invisible input-group mb-3"}>
                 <span className="input-group-text fs-10p">Subtitle</span>
-                <input type="text" className="form-control fs-10p" placeholder="Write subtitle for layer here" />
+                <input type="text" id="subtitle-input" className="form-control fs-10p" placeholder="Write subtitle for layer here" onBlur={updateSubtitle} autoComplete="off"/>
             </div>
 
             <div className="d-flex">
@@ -99,16 +118,16 @@ const OperationsContainer = () => {
                     <button className="btn btn-dark d-inline align-middle fs-10p" onClick={addEraseLayer}>Add Erase Layer</button>  
                 </div>
 
-                <div className={selLayer.type === 'erase' ? "mx-4" : selLayer.type === 'group' ? "mx-4" : "invisible mx-4"}>
+                <div className={selLayer.type === 'erase' ? "mx-4" : selLayer.type === 'group' ? "mx-4" : "invisible mx-4"} onChange={changeDrawType}>
                     <h6 className="mb-0">Mode: </h6>
                     <div className="form-check fs-10p form-check-inline">
-                        <input className="form-check-input" type="radio" name="flexRadioDefault" id="sequentialRadio" />
+                        <input className="form-check-input" data-value="sequential" type="radio" name="drawTypeRadio" id="sequentialRadio" />
                         <label className="form-check-label" htmlFor="sequentialRadio">
                             Sequential
                         </label>
                     </div>
                     <div className="form-check fs-10p form-check-inline">
-                        <input className="form-check-input" type="radio" name="flexRadioDefault" id="parallelRadio" checked />
+                        <input className="form-check-input" data-value="parallel" type="radio" name="drawTypeRadio" id="parallelRadio" />
                         <label className="form-check-label" htmlFor="parallelRadio">
                             Parallel
                         </label>
@@ -118,7 +137,7 @@ const OperationsContainer = () => {
             
             </div>
 
-            <div className={selLayer.style === "stroke" ? "d-flex fs-10p" : "invisible d-flex fs-10p"}>
+            <div className={selLayer['strokeWidth'] ? "d-flex fs-10p" : "invisible d-flex fs-10p"}>
 
                 <div id="stroke-width-group" className="d-flex flex-column me-2">
                     <label className="text-secondary" htmlFor="stroke-width-input">Stroke width:</label>
@@ -142,7 +161,7 @@ const OperationsContainer = () => {
 
             </div>
 
-            <div className={selLayer.style === "fill" ? "d-flex fs-10p" : "invisible d-flex fs-10p"}>
+            <div className={selLayer['fillColor'] ? "d-flex fs-10p" : "invisible d-flex fs-10p"}>
 
                 <div id="fill-color-group" className="d-flex flex-column me-2">
                     <label className="text-secondary" htmlFor="fill-color-input">fill Color:</label>

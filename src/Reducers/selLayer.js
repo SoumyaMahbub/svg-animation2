@@ -1,10 +1,10 @@
-const selLayerReducer = (state = {}, action) => {
+const selLayerReducer = (state = {layer: {}, idx: []}, action) => {
 	switch (action.type) {
 		case "CHANGESELLAYER":
 			state = action.payload;
 			return state;
 		case "REMOVESELLAYER":
-			state = {};
+			state = {layer: {}, idx: []};
 			return state;
 		default:
 			return state;

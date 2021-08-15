@@ -10,7 +10,7 @@ const MyDropzone = () => {
     let fileNameString;
     const fileName = useSelector((state) => state.fileName);
     const layerList = useSelector((state) => state.layerList);
-    const selLayer = useSelector((state) => state.selLayer);
+    const selLayer = useSelector((state) => state.selLayer.layer);
 	const dispatch = useDispatch();
 
     useEffect(() => {
@@ -32,8 +32,6 @@ const MyDropzone = () => {
     }
 
     const editParent = json => {
-        json['id'] = 1;
-        json['name'] = fileNameString
         delete json['type'];
         delete json['value'];
         delete json['attributes']['viewBox'];
@@ -43,9 +41,6 @@ const MyDropzone = () => {
             json[attr] = json['attributes'][attr];
         }
         delete json['attributes'];
-        json['backgroundColor'] = "#fff";
-        json['locked'] = "false";
-        json['difficulty'] = 1;
         json['layers'] = json['children'];
         delete json['children'];
     }
@@ -72,12 +67,10 @@ const MyDropzone = () => {
         }
         delete path['attributes'];
         if (path['fill']) {
-            path['style'] = "fill";
             path['fillColor'] = path['fill'];
             path['fillColor'] = parseBlackWhite(path['fillColor'])
             delete path['fill'];
         }else {
-            path['style'] = "stroke";
             path['strokeColor'] = path['stroke'];
             path['strokeWidth'] = path['stroke-width'];
             path['strokeLineCap'] = path['stroke-linecap'];
@@ -121,11 +114,11 @@ const MyDropzone = () => {
     // on drop function
     const onDrop = (acceptedFiles) => {
         const file = acceptedFiles[0];
-        fileNameString = file['name'];
+        fileNameString = file['name'].split('.').slice(0, -1).join('.');;
         if (Object.keys(selLayer).length) {
             dispatch({type: 'REMOVESELLAYER'})
         }
-        dispatch({type: 'CHANGEFILENAME', payload: file['name']});
+        dispatch({type: 'CHANGEFILENAME', payload: fileNameString});
         const reader = new FileReader();
         reader.onload = () => {
             if (file.type === "image/svg+xml") {
@@ -135,6 +128,8 @@ const MyDropzone = () => {
                     dispatch({type: 'CHANGESVGSTRING', payload: reader.result});
                 })
             } else {
+                const json = JSON.parse(reader.result);
+                dispatch({type: 'CHANGESVGJSON', payload: json});
 
             }
         }

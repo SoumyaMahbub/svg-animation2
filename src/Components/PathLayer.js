@@ -5,7 +5,7 @@ import $ from "jquery";
 const PathLayer = (props) => {
 	const dispatch = useDispatch();
 	const layers = useSelector((state) => state.svgJson.layers);
-	const selLayer = useSelector((state) => state.selLayer);
+	const selLayer = useSelector((state) => state.selLayer.layer);
 	let selLayerJson = {}
 
 	useEffect(() => {
@@ -28,22 +28,20 @@ const PathLayer = (props) => {
 		}
 	}, [selLayer])
 
-	const getSelLayerJson = (layerName, layers) => {
-		let breakException = {}
+	const changeSelLayer = (layerName, layers, groupIdx="") => {
+		let breakException = {};
 		try {
-			layers.forEach((layer) => {
-				if (layer.name.startsWith("layer_")) {
-					if (layer.name === layerName) {
-						selLayerJson = layer;
-						throw breakException;
-					}
-				} else {
-					if (layer.name === layerName) {
-						selLayerJson = layer;
-						throw breakException;
-					} else {
-						return getSelLayerJson(layerName, layer["layers"]);
-					}
+			layers.forEach((layer, idx) => {
+				if (layer.name === layerName) {
+					selLayerJson = {
+						layer: layer,
+						idx: [idx, groupIdx]
+					};
+					dispatch({type: "CHANGESELLAYER", payload: selLayerJson });
+					throw breakException;
+				} 
+				else if (layer.name.startsWith('group_')){
+					return changeSelLayer(layerName, layer["layers"], idx);
 				}
 			});
 		} catch(e) {
@@ -58,20 +56,18 @@ const PathLayer = (props) => {
 		if (Object.keys(selLayer).length !== 0) {
 			// if selected element is not the one clicked
 			if ($("#selected").get(0) !== clickedEl.get(0)) {
-				getSelLayerJson(
+				changeSelLayer(
 					clickedEl.children().eq(0).text(),
 					layers
 				);
-				dispatch({type: "CHANGESELLAYER", payload: selLayerJson });
 			} else {
-				dispatch({type: "REMOVESELLAYER"})
+				dispatch({type: "REMOVESELLAYER"});
 			}
 		} else {
-			getSelLayerJson(
+			changeSelLayer(
 				clickedEl.children().eq(0).text(),
 				layers
 			);
-			dispatch({type: "CHANGESELLAYER", payload: selLayerJson });
 		}
 	};
 
