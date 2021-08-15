@@ -1,12 +1,13 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import $ from "jquery";
 
-const PathLayer = (props) => {
+const Layer = (props) => {
 	const dispatch = useDispatch();
 	const layers = useSelector((state) => state.svgJson.layers);
 	const selLayer = useSelector((state) => state.selLayer.layer);
 	let selLayerJson = {}
+	let tempColorHex;
 
 	useEffect(() => {
 		// if selLayer exists
@@ -38,6 +39,16 @@ const PathLayer = (props) => {
 						idx: [idx, groupIdx]
 					};
 					dispatch({type: "CHANGESELLAYER", payload: selLayerJson });
+					if (layer.name.startsWith('layer_')) {
+						$("[data-svg-layer-name=" + layer.name + "]").attr('stroke', '#2181cf');
+						$("[data-svg-layer-name=" + layer.name + "]").addClass('highlighted');
+					}else {
+						const groupChildren = $("[data-svg-layer-name=" + layer.name + "]").children();
+						for (var i=0; i < groupChildren.length; i++) {
+							$(groupChildren[i]).attr('stroke', '#2181cf');
+							$(groupChildren[i]).addClass('highlighted');
+						}
+					}
 					throw breakException;
 				} 
 				else if (layer.name.startsWith('group_')){
@@ -49,6 +60,27 @@ const PathLayer = (props) => {
 		}
 	};
 
+	const unhighlightPath = () => {
+		if (selLayer.strokeColor) {
+			$(".highlighted").attr('stroke', selLayer.strokeColor);
+		}else {
+			$(".highlighted").removeAttr('stroke');
+		}
+		$('.highlighted').removeClass('highlighted');
+
+	}
+
+	const unhighlightGroup = () => {
+		selLayer['layers'].forEach(layer => {
+			if (layer.strokeColor) {
+				$(".highlighted").attr('stroke', layer.strokeColor);
+			} else {
+				$(".highlighted").removeAttr('stroke');
+			}
+			$('.highlighted').removeClass('highlighted');
+		})
+	}
+
 	const clickOnLayer = (e) => {
 		const clickedEl = $(e.currentTarget);
 
@@ -56,11 +88,22 @@ const PathLayer = (props) => {
 		if (Object.keys(selLayer).length !== 0) {
 			// if selected element is not the one clicked
 			if ($("#selected").get(0) !== clickedEl.get(0)) {
+				if (selLayer.type === "group") {
+					unhighlightGroup();
+				}else if (selLayer.type === "draw") {
+					unhighlightPath();
+				}
+			
 				changeSelLayer(
 					clickedEl.children().eq(0).text(),
 					layers
 				);
 			} else {
+				if (selLayer.type === "group") {
+					unhighlightGroup();
+				}else if (selLayer.type === "draw"){
+					unhighlightPath();
+				}
 				dispatch({type: "REMOVESELLAYER"});
 			}
 		} else {
@@ -77,16 +120,17 @@ const PathLayer = (props) => {
 			data-layer-name={props.name}
 			className={
 				props.type === "normal"
-					? "border border-2 p-3 d-flex"
+					? "border border-2 p-3 d-flex justify-content-between"
 					: props.type === "grouped"
-					? "border border-2 p-3 d-flex bg-secondary"
-					: "border border-2 p-3 d-flex bg-light text-black"
+					? "border border-2 p-3 d-flex justify-content-between bg-secondary"
+					: "border border-2 p-3 d-flex justify-content-between bg-light text-black"
 			}
 			style={{ cursor: "pointer" }}
 		>
 			<p className="my-auto ms-2">{props.name}</p>
+
 		</div>
 	);
 };
 
-export default PathLayer;
+export default Layer;

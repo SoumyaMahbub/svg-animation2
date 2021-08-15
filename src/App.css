@@ -4,6 +4,9 @@
 #selected {
     border: 2px solid rgb(33, 129, 207)!important; 
 }
+.cur-p {
+    cursor: pointer;
+}
 .w-90 {
     width: 90%;
 }

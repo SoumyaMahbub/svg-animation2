@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import PathLayer from "./PathLayer";
+import Layer from "./Layer";
 
 const LayerContainer = () => {
 	const dispatch = useDispatch();
@@ -16,13 +16,13 @@ const LayerContainer = () => {
 		if (layer.name.startsWith("group_") === false) {
 			setLayerElements((prevState) => [
 				...prevState,
-				<PathLayer key={10000 + key} name={layer.name} type={type} />,
+				<Layer key={10000 + key} name={layer.name} type={type} />,
 			]);
 			layerKey++;
 		} else {
 			setLayerElements((prevState) => [
 				...prevState,
-				<PathLayer key={10000 + key} name={layer.name} type="group" />,
+				<Layer key={10000 + key} name={layer.name} type="group" />,
 			]);
 			layerKey++;
 			layer["layers"].forEach((subLayer) => {
