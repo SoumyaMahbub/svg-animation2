@@ -16,13 +16,13 @@ const LayerContainer = () => {
 		if (layer.name.startsWith("group_") === false) {
 			setLayerElements((prevState) => [
 				...prevState,
-				<Layer key={10000 + key} name={layer.name} type={type} />,
+				<Layer key={10000 + key} name={layer.name} type={type} layerType={layer.type} />,
 			]);
 			layerKey++;
 		} else {
 			setLayerElements((prevState) => [
 				...prevState,
-				<Layer key={10000 + key} name={layer.name} type="group" />,
+				<Layer key={10000 + key} name={layer.name} type="group" layerType={layer.type} />,
 			]);
 			layerKey++;
 			layer["layers"].forEach((subLayer) => {

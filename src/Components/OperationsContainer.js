@@ -155,7 +155,7 @@ const OperationsContainer = () => {
                     <input type="text" id="subtitle-input" className="form-control fs-10p" placeholder="Write subtitle for layer here" onBlur={updateSubtitle} autoComplete="off" />
                 </div>
                 <button onClick={deleteLayer} className="flex-shrink-0 btn btn-danger fs-10p me-3"><i class="fas fa-trash-alt"></i></button>
-                <i id="visibility-switch" onClick={toggleVisibilty} class="fas fa-eye align-self-center cur-p"></i>
+                <i id="visibility-switch" onClick={toggleVisibilty} class={selLayer.type === "erase" ? "fas fa-eye align-self-center cur-p invisible" :"fas fa-eye align-self-center cur-p"}></i>
             </div>
 
 

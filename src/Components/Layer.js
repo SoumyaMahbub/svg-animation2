@@ -31,12 +31,18 @@ const Layer = (props) => {
 
 	const addPreview = (layers, insideGroup=false) => {
 		layers.forEach((layer) => {
-			const svg = $("#" + layer.name)[0].outerHTML;
-			const previewSvg = $("#preview_" + layer.name).children()
-			$("#preview_" + layer.name).html(svg);
-			previewSvg.removeAttr('id');
-			if (layer.type === "group") {
-				addPreview(layer['layers'], true);
+			if (layer.type !== "erase") {
+				const svg = $("#" + layer.name)[0].outerHTML;
+				$("#preview_" + layer.name).html(svg);
+				const previewSvg = $("#preview_" + layer.name).children();
+				if (layer.type === "group") {
+					addPreview(layer['layers'], true);
+					const pathSvg = $(previewSvg[0]).children();
+					for (var i = 0; i < pathSvg.length; i++) {
+						$(pathSvg[i]).removeAttr('id');
+					}
+				}
+				previewSvg.removeAttr('id');
 			}
 		})
 	}
@@ -56,6 +62,7 @@ const Layer = (props) => {
 					};
 					dispatch({ type: "CHANGESELLAYER", payload: selLayerJson });
 					if (layer.name.startsWith('layer_')) {
+						console.log($("#" + layer.name)[0]);
 						$("#" + layer.name).attr('stroke', '#2181cf');
 						$("#" + layer.name).addClass('highlighted');
 					} else {
@@ -111,7 +118,7 @@ const Layer = (props) => {
 				}
 
 				changeSelLayer(
-					clickedEl.children().eq(0).text(),
+					clickedEl.attr('data-layer-name'),
 					layers
 				);
 			} else {
@@ -124,7 +131,7 @@ const Layer = (props) => {
 			}
 		} else {
 			changeSelLayer(
-				clickedEl.children().eq(0).text(),
+				clickedEl.attr('data-layer-name'),
 				layers
 			);
 		}
@@ -145,11 +152,14 @@ const Layer = (props) => {
 		>
 
 			<div className="d-flex">
-				<div className="bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
-					<svg width={svgJson.height} height={svgJson.width} fill="white" viewBox={"0 0 " + svgJson.width + " " + svgJson.height} xmlns="http://www.w3.org/2000/svg" id={"preview_" + props.name} class="position-absolute w-100 h-100 preview-box">
-					</svg>
-				</div>
-				<p className="my-auto ms-2 align-self-center">{props.name}</p>
+				{props.layerType !== "erase" ?
+					<div className="bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
+						<svg width={svgJson.height} height={svgJson.width} fill="white" viewBox={"0 0 " + svgJson.width + " " + svgJson.height} xmlns="http://www.w3.org/2000/svg" id={"preview_" + props.name} class="position-absolute w-100 h-100 preview-box">
+						</svg>
+					</div>
+				: ""
+			}
+			<p className="my-auto ms-2 align-self-center">{props.name}</p>
 			</div>
 
 		</div>

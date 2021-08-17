@@ -28,7 +28,7 @@ const MyDropzone = () => {
 				return "#fff";
 			}
 		} else {
-			return
+			return value;
 		}
 	}
 
@@ -36,12 +36,14 @@ const MyDropzone = () => {
 		delete json['name'];
 		delete json['type'];
 		delete json['value'];
-		delete json['attributes']['viewBox'];
 		delete json['attributes']['xmlns'];
 		delete json['attributes']['fill'];
 		for (var attr in json['attributes']) {
 			json[attr] = json['attributes'][attr];
 		}
+		json['width'] = json['viewBox'].split(" ")[2];
+		json['height'] = json['viewBox'].split(" ")[3];		
+		delete json['viewBox'];
 		delete json['attributes'];
 		json['layers'] = json['children'];
 		delete json['children'];
@@ -68,16 +70,16 @@ const MyDropzone = () => {
 			path[attr] = path['attributes'][attr];
 		}
 		delete path['attributes'];
-		if (path['fill']) {
+		if (path['fill'] && path['fill'] !== "none") {
 			path['fillColor'] = path['fill'];
 			path['fillColor'] = parseBlackWhite(path['fillColor'])
-			delete path['fill'];
 		} else {
+			delete path['fill'];
 			path['strokeColor'] = path['stroke'];
 			path['strokeWidth'] = path['stroke-width'];
 			path['strokeLineCap'] = path['stroke-linecap'];
 			path['strokeLineJoin'] = path['stroke-linejoin'];
-			path['strokeColor'] = parseBlackWhite(path['strokeColor'])
+			path['strokeColor'] = parseBlackWhite(path['strokeColor']);
 			delete path['stroke'];
 			delete path['stroke-width'];
 			delete path['stroke-linecap'];
