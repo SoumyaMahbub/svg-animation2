@@ -1,12 +1,13 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import $ from "jquery";
 
 const Layer = (props) => {
 	const dispatch = useDispatch();
-	const layers = useSelector((state) => state.svgJson.layers);
+	const svgJson = useSelector((state) => state.svgJson)
+	const layers = svgJson.layers;
 	const selLayer = useSelector((state) => state.selLayer.layer);
-	let selLayerJson = {}
+	let selLayerJson = {};
 	let tempColorHex;
 
 	useEffect(() => {
@@ -16,10 +17,9 @@ const Layer = (props) => {
 			if ($('#selected').length) {
 				$('#selected').removeAttr("id");
 			}
-			const selLayerName = selLayer.name ? selLayer.name : selLayer.targetName;
-			$("[data-layer-name=" + selLayerName + "]").attr('id', 'selected');
+			$("[data-layer-name=" + selLayer.name + "]").attr('id', 'selected');
 
-		} 
+		}
 		// if selLayer doesn't exist
 		else {
 			// if there is selected element
@@ -27,9 +27,25 @@ const Layer = (props) => {
 				$("#selected").removeAttr("id");
 			}
 		}
-	}, [selLayer])
+	}, [selLayer]);
 
-	const changeSelLayer = (layerName, layers, groupIdx="") => {
+	const addPreview = (layers, insideGroup=false) => {
+		layers.forEach((layer) => {
+			const svg = $("#" + layer.name)[0].outerHTML;
+			const previewSvg = $("#preview_" + layer.name).children()
+			$("#preview_" + layer.name).html(svg);
+			previewSvg.removeAttr('id');
+			if (layer.type === "group") {
+				addPreview(layer['layers'], true);
+			}
+		})
+	}
+
+	useEffect(() => {
+		addPreview(layers);
+	}, [layers])
+
+	const changeSelLayer = (layerName, layers, groupIdx = "") => {
 		let breakException = {};
 		try {
 			layers.forEach((layer, idx) => {
@@ -38,32 +54,32 @@ const Layer = (props) => {
 						layer: layer,
 						idx: [idx, groupIdx]
 					};
-					dispatch({type: "CHANGESELLAYER", payload: selLayerJson });
+					dispatch({ type: "CHANGESELLAYER", payload: selLayerJson });
 					if (layer.name.startsWith('layer_')) {
-						$("[data-svg-layer-name=" + layer.name + "]").attr('stroke', '#2181cf');
-						$("[data-svg-layer-name=" + layer.name + "]").addClass('highlighted');
-					}else {
-						const groupChildren = $("[data-svg-layer-name=" + layer.name + "]").children();
-						for (var i=0; i < groupChildren.length; i++) {
+						$("#" + layer.name).attr('stroke', '#2181cf');
+						$("#" + layer.name).addClass('highlighted');
+					} else {
+						const groupChildren = $("#" + layer.name).children();
+						for (var i = 0; i < groupChildren.length; i++) {
 							$(groupChildren[i]).attr('stroke', '#2181cf');
 							$(groupChildren[i]).addClass('highlighted');
 						}
 					}
 					throw breakException;
-				} 
-				else if (layer.name.startsWith('group_')){
+				}
+				else if (layer.name.startsWith('group_')) {
 					return changeSelLayer(layerName, layer["layers"], idx);
 				}
 			});
-		} catch(e) {
-			if (e !== breakException) { return e;}
+		} catch (e) {
+			if (e !== breakException) { return e; }
 		}
 	};
 
 	const unhighlightPath = () => {
 		if (selLayer.strokeColor) {
 			$(".highlighted").attr('stroke', selLayer.strokeColor);
-		}else {
+		} else {
 			$(".highlighted").removeAttr('stroke');
 		}
 		$('.highlighted').removeClass('highlighted');
@@ -90,10 +106,10 @@ const Layer = (props) => {
 			if ($("#selected").get(0) !== clickedEl.get(0)) {
 				if (selLayer.type === "group") {
 					unhighlightGroup();
-				}else if (selLayer.type === "draw") {
+				} else if (selLayer.type === "draw") {
 					unhighlightPath();
 				}
-			
+
 				changeSelLayer(
 					clickedEl.children().eq(0).text(),
 					layers
@@ -101,10 +117,10 @@ const Layer = (props) => {
 			} else {
 				if (selLayer.type === "group") {
 					unhighlightGroup();
-				}else if (selLayer.type === "draw"){
+				} else if (selLayer.type === "draw") {
 					unhighlightPath();
 				}
-				dispatch({type: "REMOVESELLAYER"});
+				dispatch({ type: "REMOVESELLAYER" });
 			}
 		} else {
 			changeSelLayer(
@@ -122,12 +138,19 @@ const Layer = (props) => {
 				props.type === "normal"
 					? "border border-2 p-3 d-flex justify-content-between"
 					: props.type === "grouped"
-					? "border border-2 p-3 d-flex justify-content-between bg-secondary"
-					: "border border-2 p-3 d-flex justify-content-between bg-light text-black"
+						? "border border-2 p-3 d-flex justify-content-between bg-secondary"
+						: "border border-2 p-3 d-flex justify-content-between bg-light text-black"
 			}
 			style={{ cursor: "pointer" }}
 		>
-			<p className="my-auto ms-2">{props.name}</p>
+
+			<div className="d-flex">
+				<div className="bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
+					<svg width={svgJson.height} height={svgJson.width} fill="white" viewBox={"0 0 " + svgJson.width + " " + svgJson.height} xmlns="http://www.w3.org/2000/svg" id={"preview_" + props.name} class="position-absolute w-100 h-100 preview-box">
+					</svg>
+				</div>
+				<p className="my-auto ms-2 align-self-center">{props.name}</p>
+			</div>
 
 		</div>
 	);

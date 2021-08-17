@@ -33,6 +33,7 @@ const MyDropzone = () => {
 	}
 
 	const editParent = json => {
+		delete json['name'];
 		delete json['type'];
 		delete json['value'];
 		delete json['attributes']['viewBox'];
@@ -114,7 +115,7 @@ const MyDropzone = () => {
 
 	const addLayerNamesToSvg = (jsonLayers, svgLayers) => {
 		for (var i = 0; i < svgLayers.length; i++) {
-			$(svgLayers[i]).attr('data-svg-layer-name', jsonLayers[i].name);
+			$(svgLayers[i]).attr('id', jsonLayers[i].name);
 			if (svgLayers[i].nodeName === "g") {
 				addLayerNamesToSvg(jsonLayers[i].layers, $(svgLayers[i]).children());
 			}

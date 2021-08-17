@@ -53,7 +53,7 @@ const OperationsContainer = () => {
             }
         }
 
-        const svgEl = $("[data-svg-layer-name=" + selLayer.name + "]");
+        const svgEl = $("#" + selLayer.name);
         if ((svgEl.hasClass('invisible') && $("#visibility-switch").hasClass('fa-eye')) || (svgEl.hasClass('invisible') === false && $("#visibility-switch").hasClass('fa-eye-slash'))) {
             toggleEye();
         }
@@ -136,7 +136,7 @@ const OperationsContainer = () => {
     }
 
     const toggleVisibilty = (e) => {
-        const svgEl = $("[data-svg-layer-name=" + selLayer.name + "]");
+        const svgEl = $("#" + selLayer.name);
         if (svgEl.hasClass('invisible')) {
             svgEl.removeClass('invisible');
             toggleEye();
