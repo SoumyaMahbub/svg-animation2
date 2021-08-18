@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import $ from "jquery";
 
 const Layer = (props) => {
 	const dispatch = useDispatch();
-	const svgJson = useSelector((state) => state.svgJson)
-	const layers = svgJson.layers;
+	const svgJson = useSelector((state) => state.svgJson);
 	const selLayer = useSelector((state) => state.selLayer.layer);
 	let selLayerJson = {};
 	let tempColorHex;
@@ -29,27 +28,27 @@ const Layer = (props) => {
 		}
 	}, [selLayer]);
 
-	const addPreview = (layers, insideGroup=false) => {
-		layers.forEach((layer) => {
-			if (layer.type !== "erase") {
-				const svg = $("#" + layer.name)[0].outerHTML;
-				$("#preview_" + layer.name).html(svg);
-				const previewSvg = $("#preview_" + layer.name).children();
-				if (layer.type === "group") {
-					addPreview(layer['layers'], true);
-					const pathSvg = $(previewSvg[0]).children();
-					for (var i = 0; i < pathSvg.length; i++) {
-						$(pathSvg[i]).removeAttr('id');
-					}
-				}
-				previewSvg.removeAttr('id');
-			}
-		})
-	}
+	// const addPreview = (layers, insideGroup=false) => {
+	// 	layers.forEach((layer) => {
+	// 		if (layer.type !== "erase") {
+	// 			const svg = $("#" + layer.name)[0].outerHTML;
+	// 			$("#preview_" + layer.name).html(svg);
+	// 			const previewSvg = $("#preview_" + layer.name).children();
+	// 			if (layer.type === "group") {
+	// 				addPreview(layer['layers'], true);
+	// 				const pathSvg = $(previewSvg[0]).children();
+	// 				for (var i = 0; i < pathSvg.length; i++) {
+	// 					$(pathSvg[i]).removeAttr('id');
+	// 				}
+	// 			}
+	// 			previewSvg.removeAttr('id');
+	// 		}
+	// 	})
+	// }
 
-	useEffect(() => {
-		addPreview(layers);
-	}, [layers])
+	// useEffect(() => {
+	// 	addPreview(svgJson.layers, false);
+	// }, [svgJson])
 
 	const changeSelLayer = (layerName, layers, groupIdx = "") => {
 		let breakException = {};
@@ -61,8 +60,7 @@ const Layer = (props) => {
 						idx: [idx, groupIdx]
 					};
 					dispatch({ type: "CHANGESELLAYER", payload: selLayerJson });
-					if (layer.name.startsWith('layer_')) {
-						console.log($("#" + layer.name)[0]);
+					if (layer.type === 'draw') {
 						$("#" + layer.name).attr('stroke', '#2181cf');
 						$("#" + layer.name).addClass('highlighted');
 					} else {
@@ -74,7 +72,7 @@ const Layer = (props) => {
 					}
 					throw breakException;
 				}
-				else if (layer.name.startsWith('group_')) {
+				else if (layer.type == 'group') {
 					return changeSelLayer(layerName, layer["layers"], idx);
 				}
 			});
@@ -84,6 +82,7 @@ const Layer = (props) => {
 	};
 
 	const unhighlightPath = () => {
+		console.log(selLayer.strokeColor);
 		if (selLayer.strokeColor) {
 			$(".highlighted").attr('stroke', selLayer.strokeColor);
 		} else {
@@ -116,10 +115,9 @@ const Layer = (props) => {
 				} else if (selLayer.type === "draw") {
 					unhighlightPath();
 				}
-
 				changeSelLayer(
 					clickedEl.attr('data-layer-name'),
-					layers
+					svgJson.layers
 				);
 			} else {
 				if (selLayer.type === "group") {
@@ -132,7 +130,7 @@ const Layer = (props) => {
 		} else {
 			changeSelLayer(
 				clickedEl.attr('data-layer-name'),
-				layers
+				svgJson.layers
 			);
 		}
 	};
@@ -145,21 +143,23 @@ const Layer = (props) => {
 				props.type === "normal"
 					? "border border-2 p-3 d-flex justify-content-between"
 					: props.type === "grouped"
-						? "border border-2 p-3 d-flex justify-content-between bg-secondary"
-						: "border border-2 p-3 d-flex justify-content-between bg-light text-black"
+						? "border border-2 p-3 d-flex justify-content-between"
+						: "border border-2 p-3 d-flex justify-content-between bg-secondary text-black"
 			}
 			style={{ cursor: "pointer" }}
 		>
 
 			<div className="d-flex">
 				{props.layerType !== "erase" ?
+					props.type !== "grouped" ?
 					<div className="bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
-						<svg width={svgJson.height} height={svgJson.width} fill="white" viewBox={"0 0 " + svgJson.width + " " + svgJson.height} xmlns="http://www.w3.org/2000/svg" id={"preview_" + props.name} class="position-absolute w-100 h-100 preview-box">
-						</svg>
 					</div>
-				: ""
-			}
-			<p className="my-auto ms-2 align-self-center">{props.name}</p>
+					:
+					<div className="ms-3 bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
+					</div>
+					: ""
+				}
+			<p className={props.layerType !== "erase" ? "my-auto ms-2 align-self-center" : "my-auto align-self-center"}>{props.name}</p>
 			</div>
 
 		</div>

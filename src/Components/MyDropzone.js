@@ -6,7 +6,7 @@ import $ from 'jquery';
 
 const MyDropzone = () => {
 
-	let layerNumber = 1;
+	let pathNumber = 1;
 	let groupNumber = 1;
 	let fileNameString;
 	const fileName = useSelector((state) => state.fileName);
@@ -20,14 +20,17 @@ const MyDropzone = () => {
 		}
 	}, [fileName])
 
-	const parseBlackWhite = value => {
+	const parseHexColor = value => {
 		if (value === "black" || value === "white") {
 			if (value === "black") {
-				return "#000";
+				return "#000000";
 			} else {
-				return "#fff";
+				return "#ffffff";
 			}
-		} else {
+		} else if (value.length === 4) {
+			const newValue = "#" + value[1] + value[1] + value[2] + value[2] + value[3] + value[3];			
+			return newValue;
+		}else {
 			return value;
 		}
 	}
@@ -51,13 +54,18 @@ const MyDropzone = () => {
 
 	const generateName = (layers) => {
 		layers.forEach((layer) => {
-			if (layer.name === 'path') {
-				layer['name'] = "layer_" + layerNumber;
-				layerNumber++;
-			} else {
-				layer['name'] = "group_" + groupNumber;
-				groupNumber++;
-				generateName(layer['children']);
+			if (!layer.hasOwnProperty('name')) {
+				if (layer.type === 'draw') {
+					layer['name'] = "path_" + pathNumber;
+					pathNumber++;
+				} 
+				else {
+					layer['name'] = "group_" + groupNumber;
+					groupNumber++;
+				}
+			}
+			if (layer.type === "group") {
+				generateName(layer['layers']);
 			}
 		})
 	}
@@ -69,17 +77,23 @@ const MyDropzone = () => {
 		for (var attr in path['attributes']) {
 			path[attr] = path['attributes'][attr];
 		}
+		if (path['id']) {
+			path['name'] = path['id'];
+		}
+		else if (path['name'] === "g" || path['name'] === "path") {
+			delete path['name'];
+		}
 		delete path['attributes'];
 		if (path['fill'] && path['fill'] !== "none") {
 			path['fillColor'] = path['fill'];
-			path['fillColor'] = parseBlackWhite(path['fillColor'])
-		} else {
+			path['fillColor'] = parseHexColor(path['fillColor']);
+		} else if(path['stroke']) {
 			delete path['fill'];
 			path['strokeColor'] = path['stroke'];
 			path['strokeWidth'] = path['stroke-width'];
 			path['strokeLineCap'] = path['stroke-linecap'];
 			path['strokeLineJoin'] = path['stroke-linejoin'];
-			path['strokeColor'] = parseBlackWhite(path['strokeColor']);
+			path['strokeColor'] = parseHexColor(path['strokeColor']);
 			delete path['stroke'];
 			delete path['stroke-width'];
 			delete path['stroke-linecap'];
@@ -90,29 +104,44 @@ const MyDropzone = () => {
 	}
 
 	const parseGroup = group => {
-		group['type'] = "group";
+		// convert group to draw layer
+		if (group['attributes']['id']) {
+			group['name'] = group['attributes']['id'];
+		} else {
+			delete group['name'];
+		}
 		delete group['value'];
 		delete group['attributes'];
-		group['drawMode'] = "sequential";
-		group['layers'] = group['children'];
-		delete group['children'];
-		group['layers'].forEach((path) => {
-			parsePath(path);
-		})
+		delete group['type'];
+		if (group.children.length === 1) {
+			group['attributes'] = {}
+			for (var attr in group['children'][0]['attributes']){ 
+				group['attributes'][attr] = group['children'][0]['attributes'][attr];
+			}
+			parsePath(group);
+		}else {
+			group['type'] = "group";
+			group['drawMode'] = "parallel";
+			group['layers'] = group['children'];
+			delete group['children'];
+			group['layers'].forEach((path) => {
+				parsePath(path);
+			});	
+		}
 	}
 
 	const modifyJSON = json => {
 		editParent(json);
-		generateName(json['layers']);
-		layerNumber = 1;
+		pathNumber = 1;
 		groupNumber = 1;
 		json.layers.forEach((layer) => {
-			if (layer.name.startsWith("layer_")) {
+			if (layer.name === "path") {
 				parsePath(layer);
 			} else {
 				parseGroup(layer);
 			}
 		})
+		generateName(json['layers']);
 	}
 
 	const addLayerNamesToSvg = (jsonLayers, svgLayers) => {
@@ -122,6 +151,20 @@ const MyDropzone = () => {
 				addLayerNamesToSvg(jsonLayers[i].layers, $(svgLayers[i]).children());
 			}
 		}
+	}
+
+	const parseSvg = (svgString) => {
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(svgString, "image/svg+xml");
+		const mainSvg = $(doc).children().eq(0);
+		for (var i = 0; i < mainSvg.children().length; i++) {
+			const cnt = mainSvg.children().eq(i).contents();
+			if(mainSvg.children().eq(i).children().length === 1) {
+				mainSvg.children().eq(i).replaceWith(cnt); 
+			}
+		}
+		var serializer = new XMLSerializer();
+      	return serializer.serializeToString(doc);
 	}
 
 	// on drop function
@@ -135,7 +178,7 @@ const MyDropzone = () => {
 		const reader = new FileReader();
 		reader.onload = () => {
 			if (file.type === "image/svg+xml") {
-				$('#canvas').html(reader.result);
+				$('#canvas').html(parseSvg(reader.result));
 				$('svg').attr('id', 'main-svg');
 				$('svg').addClass('position-absolute w-100 h-100');
 				parse(reader.result).then((json) => {

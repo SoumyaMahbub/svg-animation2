@@ -36,7 +36,7 @@ const ExportBar = () => {
 			if (newLayers[i]['type'] !== "erase") {
 				newLayers[i]['name'] = layers[i]['name'];
 			}else {
-				newLayers[i]['targetName'] = layers[i]['name'].replace('erase_','');
+				newLayers[i]['target'] = layers[i]['name'].replace('erase_','');
 			}
 			if (layers[i]['subtitleEn']) {
 				newLayers[i]['subtitleEn'] = layers[i]['subtitleEn'];

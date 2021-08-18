@@ -12,6 +12,7 @@ const OperationsContainer = () => {
     const layers = svgJson.layers
     const layerList = useSelector((state) => state.layerList);
     const [options, setOptions] = useState([]);
+    let newOptions = [];
     let foundInGroup = false;
 
     const toggleEye = () => {
@@ -30,14 +31,15 @@ const OperationsContainer = () => {
         // set Erase Lyaer Options
         setOptions([]);
         if (Object.keys(selLayer).length !== 0) {
-            const selLayerIdx = layerList.indexOf(selLayer.name);
-            const layersBeforeSel = layerList.slice(0, selLayerIdx + 1);
+            const layersBeforeSel = layerList.slice(0, selLayerIdx[0]);
             let valueCounter = 1;
+            newOptions = []
             layersBeforeSel.forEach((layer) => {
                 const key = valueCounter;
-                setOptions(prevState => [...prevState, <option key={key} value={layer}>{layer}</option>])
+                newOptions.push(<option key={key} value={layer}>{layer}</option>);
                 valueCounter++;
             })
+            setOptions(newOptions);
         }
 
         // subtitle input value set
@@ -104,7 +106,7 @@ const OperationsContainer = () => {
         const eraseLayerJson = {
             type: 'erase',
             name: 'erase_' + $('#erase-layer-select').val(),
-            drawMode: 'sequential'
+            drawMode: 'parallel'
         }
         changeSingleLayer('add', eraseLayerJson);
     }

@@ -4,26 +4,23 @@ import Layer from "./Layer";
 
 const LayerContainer = () => {
 	const dispatch = useDispatch();
+	const state = useSelector(state => state)
 	const svgJson = useSelector((state) => state.svgJson);
-	const layers = svgJson.layers
 	const [layerElements, setLayerElements] = useState([]);
+	let newLayerElements = [];
 	let layerKey = 1;
 	let layerList = [];
 
 	const generateLayer = (layer, type) => {
-		layerList.push(layer.name);
+		if (layer.type === "group" || layer.type === "normal") {
+			layerList.push(layer.name);
+		}
 		const key = layerKey;
-		if (layer.name.startsWith("group_") === false) {
-			setLayerElements((prevState) => [
-				...prevState,
-				<Layer key={10000 + key} name={layer.name} type={type} layerType={layer.type} />,
-			]);
+		if (layer.type !== "group") {
+			newLayerElements.push(<Layer key={10000 + key} name={layer.name} type={type} layerType={layer.type} />)
 			layerKey++;
 		} else {
-			setLayerElements((prevState) => [
-				...prevState,
-				<Layer key={10000 + key} name={layer.name} type="group" layerType={layer.type} />,
-			]);
+			newLayerElements.push(<Layer key={10000 + key} name={layer.name} type="group" layerType={layer.type} />)
 			layerKey++;
 			layer["layers"].forEach((subLayer) => {
 				generateLayer(subLayer, "grouped");
@@ -32,17 +29,22 @@ const LayerContainer = () => {
 	};
 
 	useEffect(() => {
-		if (layers) {
+	}, [state.svgJson])
+	
+	useEffect(() => {
+		if (svgJson.layers) {
 			if (layerElements.length !== 0) {
 				setLayerElements([])
 			}
 			layerList = [];
-			layers.forEach((layer) => {
+			newLayerElements = [];
+			svgJson.layers.forEach((layer) => {
 				generateLayer(layer, "normal");
 			});
+			setLayerElements(newLayerElements);
 			dispatch({type: 'CHANGELAYERLIST', payload: layerList});
 		}
-	}, [layers]);
+	}, [svgJson]);
 
 	return (
 		<div id="layer-container" className="overflow-auto">
