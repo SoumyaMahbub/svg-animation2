@@ -28,27 +28,24 @@ const Layer = (props) => {
 		}
 	}, [selLayer]);
 
-	// const addPreview = (layers, insideGroup=false) => {
-	// 	layers.forEach((layer) => {
-	// 		if (layer.type !== "erase") {
-	// 			const svg = $("#" + layer.name)[0].outerHTML;
-	// 			$("#preview_" + layer.name).html(svg);
-	// 			const previewSvg = $("#preview_" + layer.name).children();
-	// 			if (layer.type === "group") {
-	// 				addPreview(layer['layers'], true);
-	// 				const pathSvg = $(previewSvg[0]).children();
-	// 				for (var i = 0; i < pathSvg.length; i++) {
-	// 					$(pathSvg[i]).removeAttr('id');
-	// 				}
-	// 			}
-	// 			previewSvg.removeAttr('id');
-	// 		}
-	// 	})
-	// }
+	const addPreview = (layerType, layerName) => {
+		if (layerType !== "erase") {
+			const svg = $("#" + layerName)[0].outerHTML;
+			$("#preview_" + layerName).html(svg);
+			const previewSvg = $("#preview_" + layerName).children();
+			if (layerType === "group") {
+				const pathSvg = $(previewSvg[0]).children();
+				for (var i = 0; i < pathSvg.length; i++) {
+					$(pathSvg[i]).removeAttr('id');
+				}
+			}
+			previewSvg.removeAttr('id');
+		}
+	}
 
-	// useEffect(() => {
-	// 	addPreview(svgJson.layers, false);
-	// }, [svgJson])
+	useEffect(() => {
+		addPreview(props.layerType, props.name);
+	}, [svgJson])
 
 	const changeSelLayer = (layerName, layers, groupIdx = "") => {
 		let breakException = {};
@@ -61,14 +58,25 @@ const Layer = (props) => {
 					};
 					dispatch({ type: "CHANGESELLAYER", payload: selLayerJson });
 					if (layer.type === 'draw') {
-						$("#" + layer.name).attr('stroke', '#2181cf');
-						$("#" + layer.name).addClass('highlighted');
-					} else {
-						const groupChildren = $("#" + layer.name).children();
-						for (var i = 0; i < groupChildren.length; i++) {
-							$(groupChildren[i]).attr('stroke', '#2181cf');
-							$(groupChildren[i]).addClass('highlighted');
+						if (layer['strokeWidth']) {
+							$("#" + layer.name).attr('stroke', '#2181cf');
+							$("#" + layer.name).addClass('highlighted');
+						} else {
+							$("#" + layer.name).attr('stroke-width', '5');
+							$("#" + layer.name).attr('stroke', '#2181cf');
+							$("#" + layer.name).addClass('highlighted');
 						}
+					} else if (layer.type === "group") {
+						layer['layers'].forEach(lyr => {
+							if (lyr['strokeWidth']) {
+								$("#" + lyr.name).attr('stroke', '#2181cf');
+								$("#" + lyr.name).addClass('highlighted');
+							} else {
+								$("#" + lyr.name).attr('stroke-width', '5');
+								$("#" + lyr.name).attr('stroke', '#2181cf');
+								$("#" + lyr.name).addClass('highlighted');
+							}
+						})
 					}
 					throw breakException;
 				}
@@ -82,7 +90,6 @@ const Layer = (props) => {
 	};
 
 	const unhighlightPath = () => {
-		console.log(selLayer.strokeColor);
 		if (selLayer.strokeColor) {
 			$(".highlighted").attr('stroke', selLayer.strokeColor);
 		} else {
@@ -105,35 +112,52 @@ const Layer = (props) => {
 
 	const clickOnLayer = (e) => {
 		const clickedEl = $(e.currentTarget);
-
-		// if there is selected element
-		if (Object.keys(selLayer).length !== 0) {
-			// if selected element is not the one clicked
-			if ($("#selected").get(0) !== clickedEl.get(0)) {
-				if (selLayer.type === "group") {
-					unhighlightGroup();
-				} else if (selLayer.type === "draw") {
-					unhighlightPath();
+		if (e.target.nodeName !== "I") {
+			// if there is selected element
+			if (Object.keys(selLayer).length !== 0) {
+				// if selected element is not the one clicked
+				if ($("#selected").get(0) !== clickedEl.get(0)) {
+					if (selLayer.type === "group") {
+						unhighlightGroup();
+					} else if (selLayer.type === "draw") {
+						unhighlightPath();
+					}
+					changeSelLayer(
+						clickedEl.attr('data-layer-name'),
+						svgJson.layers
+					);
+				} else {
+					if (selLayer.type === "group") {
+						unhighlightGroup();
+					} else if (selLayer.type === "draw") {
+						unhighlightPath();
+					}
+					dispatch({ type: "REMOVESELLAYER" });
 				}
+			} else {
 				changeSelLayer(
 					clickedEl.attr('data-layer-name'),
 					svgJson.layers
 				);
-			} else {
-				if (selLayer.type === "group") {
-					unhighlightGroup();
-				} else if (selLayer.type === "draw") {
-					unhighlightPath();
-				}
-				dispatch({ type: "REMOVESELLAYER" });
 			}
-		} else {
-			changeSelLayer(
-				clickedEl.attr('data-layer-name'),
-				svgJson.layers
-			);
 		}
 	};
+
+	const toggleVisibilty = (e) => {
+		const eyeEl =  $(e.target);
+		const layerName = $(eyeEl).parent().attr('data-layer-name');
+		const svgLayerEl = $("#" + layerName)
+		if (eyeEl.hasClass('fa-eye')) {
+			svgLayerEl.addClass('invisible');
+			$(eyeEl).removeClass('fa-eye');
+			$(eyeEl).addClass('fa-eye-slash');
+		}
+		else {
+			svgLayerEl.removeClass('invisible');
+			$(eyeEl).removeClass('fa-eye-slash');
+			$(eyeEl).addClass('fa-eye');
+		}
+	}
 
 	return (
 		<div
@@ -144,7 +168,7 @@ const Layer = (props) => {
 					? "border border-2 p-3 d-flex justify-content-between"
 					: props.type === "grouped"
 						? "border border-2 p-3 d-flex justify-content-between"
-						: "border border-2 p-3 d-flex justify-content-between bg-secondary text-black"
+						: "border border-2 p-3 d-flex justify-content-between bg-secondary"
 			}
 			style={{ cursor: "pointer" }}
 		>
@@ -153,15 +177,23 @@ const Layer = (props) => {
 				{props.layerType !== "erase" ?
 					props.type !== "grouped" ?
 					<div className="bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
+						<svg className="position-absolute w-100 h-100" id={"preview_" + props.name} height={svgJson.height} width={svgJson.width} viewBox={"0 0 "+ svgJson.width + " " + svgJson.height}>
+						</svg>
 					</div>
 					:
 					<div className="ms-3 bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
+						<svg className="position-absolute w-100 h-100" id={"preview_" + props.name} height={svgJson.height} width={svgJson.width} viewBox={"0 0 "+ svgJson.width + " " + svgJson.height}>
+						</svg>
 					</div>
 					: ""
 				}
-			<p className={props.layerType !== "erase" ? "my-auto ms-2 align-self-center" : "my-auto align-self-center"}>{props.name}</p>
+				<p className={props.layerType !== "erase" ? "my-auto ms-2 align-self-center" : "my-auto align-self-center"}>{props.name}</p>
 			</div>
-
+			{props.layerType !== "erase" ?
+				<i className="fa fa-eye align-self-center" onClick={toggleVisibilty}></i>
+				:
+				""
+			}
 		</div>
 	);
 };

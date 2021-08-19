@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from "react-dropzone";
 import { parse } from "svgson";
 import $ from 'jquery';
+import { main } from "@popperjs/core";
 
 const MyDropzone = () => {
 
@@ -104,7 +105,6 @@ const MyDropzone = () => {
 	}
 
 	const parseGroup = group => {
-		// convert group to draw layer
 		if (group['attributes']['id']) {
 			group['name'] = group['attributes']['id'];
 		} else {
@@ -113,21 +113,13 @@ const MyDropzone = () => {
 		delete group['value'];
 		delete group['attributes'];
 		delete group['type'];
-		if (group.children.length === 1) {
-			group['attributes'] = {}
-			for (var attr in group['children'][0]['attributes']){ 
-				group['attributes'][attr] = group['children'][0]['attributes'][attr];
-			}
-			parsePath(group);
-		}else {
-			group['type'] = "group";
-			group['drawMode'] = "parallel";
-			group['layers'] = group['children'];
-			delete group['children'];
-			group['layers'].forEach((path) => {
-				parsePath(path);
-			});	
-		}
+		group['type'] = "group";
+		group['drawMode'] = "parallel";
+		group['layers'] = group['children'];
+		delete group['children'];
+		group['layers'].forEach((path) => {
+			parsePath(path);
+		});	
 	}
 
 	const modifyJSON = json => {
@@ -152,19 +144,127 @@ const MyDropzone = () => {
 			}
 		}
 	}
+	const elToPath = (el) => {
+		const svgNS = el.ownerSVGElement.namespaceURI;
+		const path = document.createElementNS(svgNS,'path');
+		if (el.nodeName === "polygon") {
+			const points = el.getAttribute('points').split(/\s+|,/);
+			const x0=points.shift(), y0=points.shift();
+			let pathData = 'M'+x0+','+y0+'L'+points.join(' ');
+			if (el.tagName=='polygon') pathData+='z';
+			path.setAttribute('d',pathData);
+			const elAttrs = el.attributes;
+			let i = elAttrs.length;
+			while (i--) {
+				const attr = elAttrs[i];
+				if (attr.name !== 'points') {
+					path.setAttribute(attr.name, attr.value);
+				}
+			}
+		}
+		else if (el.nodeName === "rect") {
+			const x = parseFloat(el.getAttribute('x'), 10);
+			const y = parseFloat(el.getAttribute('y'), 10);
+			const width = parseFloat(el.getAttribute('width'), 10);
+			const height = parseFloat(el.getAttribute('height'), 10);
+
+			if (x < 0 || y < 0 || width < 0 || height < 0) {
+				return '';
+			}
+			const pathData = 'M' + x + ' ' + y + 'L' + (x + width) + ' ' + y + ' ' + (x + width) + ' ' + (y + height) + ' ' + x + ' ' + (y + height) + 'z';
+			path.setAttribute('d',pathData);
+			const elAttrs = el.attributes;
+			let i = elAttrs.length;
+			while (i--) {
+				const attr = elAttrs[i];
+				if (attr.name !== 'x' || attr.name !== 'y' || attr.name !== 'width' || attr.name !== 'height') {
+					path.setAttribute(attr.name, attr.value);
+				}
+			}
+		}else if (el.nodeName === "ellipse") {
+			const calcOuput = (cx, cy, rx, ry) => {
+				if (cx < 0 || cy < 0 || rx <= 0 || ry <= 0) {
+					return '';
+				}
+		
+				const output = 'M' + (cx - rx).toString() + ',' + cy.toString();
+				output += 'a' + rx.toString() + ',' + ry.toString() + ' 0 1,0 ' + (2 * rx).toString() + ',0';
+				output += 'a' + rx.toString() + ',' + ry.toString() + ' 0 1,0'  + (-2 * rx).toString() + ',0';
+		
+				return output;
+			}
+			const cx = el.getAttribute('cx');
+			const cy = el.getAttribute('cy');
+			let pathData;
+
+			if (el.getAttribute('r')) {
+				const r = el.getAttribute('r');
+				pathData = calcOuput(parseFloat(cx, 10), parseFloat(cy, 10), parseFloat(r, 10), parseFloat(r, 10));
+			} 
+			else {
+				const rx = el.getAttribute('rx');
+				const ry = el.getAttribute('ry');
+				pathData = calcOuput(parseFloat(cx, 10), parseFloat(cy, 10), parseFloat(rx, 10), parseFloat(ry, 10));
+			}
+			path.setAttribute('d',pathData);
+			const elAttrs = el.attributes;
+			let i = elAttrs.length;
+			while (i--) {
+				const attr = elAttrs[i];
+				if (attr.name !== 'cx' || attr.name !== 'cy' || attr.name !== 'rx' || attr.name !== 'ry' || attr.name !== "r") {
+					path.setAttribute(attr.name, attr.value);
+				}
+			}
+		}
+		return path
+	}
+
+	const convertToPath = (svgDoc) => {
+		const groups = svgDoc.children[0].children;
+		for (var i = 0; i < groups.length; i++) {
+			if (groups[i].nodeName == "g") {
+				const groupLayers = groups[i].children
+				for (var j = 0; j < groupLayers.length; j++) {
+					if (groupLayers[j].nodeName !== "path") {
+						const convertedPath = elToPath(groupLayers[j]);
+						svgDoc.children[0].children[i].removeChild(groupLayers[j]);
+						if (groupLayers[j]) {
+							svgDoc.children[0].children[i].insertBefore(convertedPath, groupLayers[j])
+						}else {
+							svgDoc.children[0].children[i].appendChild(convertedPath);
+						}
+					}
+				}
+			} else if (groups[i].nodeName !== "path") {
+				const convertedPath = elToPath(groups[i]);
+				svgDoc.children[0].removeChild(groups[i]);
+				if (groups[i]) {
+					svgDoc.children[0].insertBefore(convertedPath, groups[i]);
+				}else {
+					svgDoc.children[0].appendChild(convertedPath);
+				}
+			} 
+		}
+	}
+
+	const removeSingleLayerGroup = (svgEl) => {
+		for (var i = 0; i < svgEl.children().length; i++) {
+			const group = svgEl.children().eq(i)
+			const cnt = group.contents();
+			if(group.children().length === 1) {
+				group.replaceWith(cnt); 
+			}
+		}
+	}
 
 	const parseSvg = (svgString) => {
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(svgString, "image/svg+xml");
+		convertToPath(doc);
 		const mainSvg = $(doc).children().eq(0);
-		for (var i = 0; i < mainSvg.children().length; i++) {
-			const cnt = mainSvg.children().eq(i).contents();
-			if(mainSvg.children().eq(i).children().length === 1) {
-				mainSvg.children().eq(i).replaceWith(cnt); 
-			}
-		}
+		removeSingleLayerGroup(mainSvg);
 		var serializer = new XMLSerializer();
-      	return serializer.serializeToString(doc);
+		return serializer.serializeToString(doc);
 	}
 
 	// on drop function
@@ -178,10 +278,11 @@ const MyDropzone = () => {
 		const reader = new FileReader();
 		reader.onload = () => {
 			if (file.type === "image/svg+xml") {
-				$('#canvas').html(parseSvg(reader.result));
+				const svgString = parseSvg(reader.result)
+				$('#canvas').html(svgString);
 				$('svg').attr('id', 'main-svg');
 				$('svg').addClass('position-absolute w-100 h-100');
-				parse(reader.result).then((json) => {
+				parse(svgString).then((json) => {
 					modifyJSON(json);
 					addLayerNamesToSvg(json.layers, $('#main-svg').children());
 					dispatch({ type: 'CHANGESVGJSON', payload: json });
@@ -190,7 +291,6 @@ const MyDropzone = () => {
 			} else {
 				const json = JSON.parse(reader.result);
 				dispatch({ type: 'CHANGESVGJSON', payload: json });
-
 			}
 		}
 		reader.readAsText(file);

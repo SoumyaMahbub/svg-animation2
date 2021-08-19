@@ -12,28 +12,17 @@ const OperationsContainer = () => {
     const layers = svgJson.layers
     const layerList = useSelector((state) => state.layerList);
     const [options, setOptions] = useState([]);
+    const [erasableLayers, setErasableLayers] = useState([...layerList]);
     let newOptions = [];
-    let foundInGroup = false;
-
-    const toggleEye = () => {
-        const eye = $("#visibility-switch")
-        if (eye.hasClass('fa-eye')) {
-            eye.removeClass('fa-eye');
-            eye.addClass('fa-eye-slash');
-        } else {
-            eye.removeClass('fa-eye-slash');
-            eye.addClass('fa-eye');
-        }
-    }
 
     // selected Layer change
     useEffect(() => {
         // set Erase Lyaer Options
         setOptions([]);
         if (Object.keys(selLayer).length !== 0) {
-            const layersBeforeSel = layerList.slice(0, selLayerIdx[0]);
+            const layersBeforeSel = layerList.slice(0, selLayerIdx[0]+1);
             let valueCounter = 1;
-            newOptions = []
+            newOptions = [];
             layersBeforeSel.forEach((layer) => {
                 const key = valueCounter;
                 newOptions.push(<option key={key} value={layer}>{layer}</option>);
@@ -55,12 +44,7 @@ const OperationsContainer = () => {
             }
         }
 
-        const svgEl = $("#" + selLayer.name);
-        if ((svgEl.hasClass('invisible') && $("#visibility-switch").hasClass('fa-eye')) || (svgEl.hasClass('invisible') === false && $("#visibility-switch").hasClass('fa-eye-slash'))) {
-            toggleEye();
-        }
-
-    }, [selLayer])
+    }, [selLayer]);
 
     const changeSingleLayer = (type, newSelLayerObj) => {
         let newLayers;
@@ -137,17 +121,6 @@ const OperationsContainer = () => {
         changeSingleLayer('delete', "");
     }
 
-    const toggleVisibilty = (e) => {
-        const svgEl = $("#" + selLayer.name);
-        if (svgEl.hasClass('invisible')) {
-            svgEl.removeClass('invisible');
-            toggleEye();
-        } else {
-            svgEl.addClass('invisible');
-            toggleEye();
-        }
-    }
-
     return (
         <div className="w-100 bg-white p-4">
 
@@ -157,7 +130,6 @@ const OperationsContainer = () => {
                     <input type="text" id="subtitle-input" className="form-control fs-10p" placeholder="Write subtitle for layer here" onBlur={updateSubtitle} autoComplete="off" />
                 </div>
                 <button onClick={deleteLayer} className="flex-shrink-0 btn btn-danger fs-10p me-3"><i class="fas fa-trash-alt"></i></button>
-                <i id="visibility-switch" onClick={toggleVisibilty} class={selLayer.type === "erase" ? "fas fa-eye align-self-center cur-p invisible" :"fas fa-eye align-self-center cur-p"}></i>
             </div>
 
 

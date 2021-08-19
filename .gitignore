@@ -5,6 +5,9 @@
 /.pnp
 .pnp.js
 
+#svg/json
+/svg and Json
+
 # testing
 /coverage
 
