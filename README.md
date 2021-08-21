@@ -15,7 +15,9 @@ docker-compose stop
 ```
 docker-compose -f docker-compose.prod.yml up -d --build
 ```
-
+```
+docker-compose stop
+```
 
 # Getting Started with Create React App
 
