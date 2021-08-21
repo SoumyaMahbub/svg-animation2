@@ -28,25 +28,6 @@ const Layer = (props) => {
 		}
 	}, [selLayer]);
 
-	const addPreview = (layerType, layerName) => {
-		if (layerType !== "erase") {
-			const svg = $("#" + layerName)[0].outerHTML;
-			$("#preview_" + layerName).html(svg);
-			const previewSvg = $("#preview_" + layerName).children();
-			if (layerType === "group") {
-				const pathSvg = $(previewSvg[0]).children();
-				for (var i = 0; i < pathSvg.length; i++) {
-					$(pathSvg[i]).removeAttr('id');
-				}
-			}
-			previewSvg.removeAttr('id');
-		}
-	}
-
-	useEffect(() => {
-		addPreview(props.layerType, props.name);
-	}, [svgJson])
-
 	const changeSelLayer = (layerName, layers, groupIdx = "") => {
 		let breakException = {};
 		try {
@@ -164,30 +145,14 @@ const Layer = (props) => {
 			onClick={clickOnLayer}
 			data-layer-name={props.name}
 			className={
-				props.type === "normal"
+				props.type === "grouped"
 					? "border border-2 p-3 d-flex justify-content-between"
-					: props.type === "grouped"
-						? "border border-2 p-3 d-flex justify-content-between"
-						: "border border-2 p-3 d-flex justify-content-between bg-secondary"
+					: "border border-2 p-3 d-flex justify-content-between bg-secondary"
 			}
 			style={{ cursor: "pointer" }}
 		>
-
 			<div className="d-flex">
-				{props.layerType !== "erase" ?
-					props.type !== "grouped" ?
-					<div className="bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
-						<svg className="position-absolute w-100 h-100" id={"preview_" + props.name} height={svgJson.height} width={svgJson.width} viewBox={"0 0 "+ svgJson.width + " " + svgJson.height}>
-						</svg>
-					</div>
-					:
-					<div className="ms-3 bg-white position-relative shadow-lg" style={{ height: '30px', width: '30px' }}>
-						<svg className="position-absolute w-100 h-100" id={"preview_" + props.name} height={svgJson.height} width={svgJson.width} viewBox={"0 0 "+ svgJson.width + " " + svgJson.height}>
-						</svg>
-					</div>
-					: ""
-				}
-				<p className={props.layerType !== "erase" ? "my-auto ms-2 align-self-center" : "my-auto align-self-center"}>{props.name}</p>
+				<p className={props.type === "grouped" ? "my-auto ms-4 align-self-center" : "my-auto align-self-center"}>{props.name}</p>
 			</div>
 			{props.layerType !== "erase" ?
 				<i className="fa fa-eye align-self-center" onClick={toggleVisibilty}></i>

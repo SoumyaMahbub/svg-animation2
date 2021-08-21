@@ -85,7 +85,10 @@ const MyDropzone = () => {
 			delete path['name'];
 		}
 		delete path['attributes'];
-		if (path['fill'] && path['fill'] !== "none") {
+		if (path['fill'] !== "none") {
+			if (!path['fill']) {
+				path['fill'] = "#000000";
+			}
 			path['fillColor'] = path['fill'];
 			path['fillColor'] = parseHexColor(path['fillColor']);
 		} else if(path['stroke']) {
@@ -181,7 +184,7 @@ const MyDropzone = () => {
 					path.setAttribute(attr.name, attr.value);
 				}
 			}
-		}else if (el.nodeName === "ellipse") {
+		}else if (el.nodeName === "ellipse" || el.nodeName === "circle") {
 			const calcOuput = (cx, cy, rx, ry) => {
 				if (cx < 0 || cy < 0 || rx <= 0 || ry <= 0) {
 					return '';
@@ -215,6 +218,44 @@ const MyDropzone = () => {
 					path.setAttribute(attr.name, attr.value);
 				}
 			}
+		}else if (el.nodeName === "polyline" || el.nodeName === "polycircle") {
+			const points = el.getAttribute('points');
+		
+			const pointsArr = points
+				.split('     ').join('')
+				.trim()
+				.split(/\s+|,/);
+			const x0 = pointsArr.shift();
+			const y0 = pointsArr.shift();
+		
+			const pathData = 'M' + x0 + ',' + y0 + 'L' + pointsArr.join(' ');
+			path.setAttribute('d',pathData);
+			const elAttrs = el.attributes;
+			let i = elAttrs.length;
+			while (i--) {
+				const attr = elAttrs[i];
+				if (attr.name !== 'points') {
+					path.setAttribute(attr.name, attr.value);
+				}
+			}		
+		}else if (el.nodeName === 'line') {
+			const x1 = el.getAttribute('x1');
+			const x2 = el.getAttribute('x2');
+			const y1 = el.getAttribute('y1');
+			const y2 = el.getAttribute('y2');
+			if (parseFloat(x1, 10) < 0 || parseFloat(y1, 10) < 0 || parseFloat(x2, 10) < 0 || parseFloat(y2, 10) < 0) {
+				return '';
+			}
+			const pathData = 'M' + x1 + ',' + y1 + 'L' + x2 + ',' + y2;
+			path.setAttribute('d',pathData);
+			const elAttrs = el.attributes;
+			let i = elAttrs.length;
+			while (i--) {
+				const attr = elAttrs[i];
+				if (attr.name !== 'points') {
+					path.setAttribute(attr.name, attr.value);
+				}
+			}
 		}
 		return path
 	}
@@ -235,6 +276,8 @@ const MyDropzone = () => {
 						}
 					}
 				}
+			} else if (groups[i].nodeName === "title") {
+				svgDoc.children[0].removeChild(groups[i]);
 			} else if (groups[i].nodeName !== "path") {
 				const convertedPath = elToPath(groups[i]);
 				svgDoc.children[0].removeChild(groups[i]);
@@ -243,7 +286,7 @@ const MyDropzone = () => {
 				}else {
 					svgDoc.children[0].appendChild(convertedPath);
 				}
-			} 
+			}
 		}
 	}
 
@@ -267,10 +310,62 @@ const MyDropzone = () => {
 		return serializer.serializeToString(doc);
 	}
 
+	const modifyImportedJSON = (json) => {
+		json['layers'].forEach((layer, idx) => {
+			if (layer.type === "erase") {
+				layer['name'] = "erase_" + layer['target'];
+				delete layer['target'];
+			}
+		})
+	}
+
+	const editSvgParent = (json, svg) => {
+		svg.setAttribute('width', json.width);
+		svg.setAttribute('height', json.height);
+		svg.setAttribute('viewBox', "0 0 " + json.width + " " + json.height);
+		svg.setAttribute('id', 'main-svg');
+		svg.classList.add('position-absolute', 'w-100', 'h-100');
+	}
+
+	const editSvgLayers = (layers, svg) => {
+		layers.forEach(layer => {
+			let newSvgEl;	
+			if (layer.type === "draw") {
+				newSvgEl = document.createElement('path');
+				newSvgEl.setAttribute('id', layer.name);
+				newSvgEl.setAttribute('d', layer.pathData);
+				if (!layer.fillColor) {
+					newSvgEl.setAttribute('fill', 'none');
+					newSvgEl.setAttribute('stroke', layer.strokeColor);
+					newSvgEl.setAttribute('stroke-width', layer.strokeWidth);
+					newSvgEl.setAttribute('stroke-linecap', layer.strokeLineCap);
+					newSvgEl.setAttribute('stroke-linejoin', layer.strokeLineJoin);
+				} else {
+					newSvgEl.setAttribute('fill', layer.fillColor);
+				}
+			}else if (layer.type === "erase") {
+				return;
+			}
+			else if (layer.type === "group") {
+				newSvgEl = document.createElement('G');
+				newSvgEl.setAttribute('id', layer.name);
+				editSvgLayers(layer['layers'], newSvgEl);
+			}
+			svg.appendChild(newSvgEl);
+		})
+	}
+
+	const convertJsonToSvg = (json) => {
+		const svg = document.createElement('SVG');
+		editSvgParent(json, svg);
+		editSvgLayers(json['layers'], svg);
+		return svg
+	}
+
 	// on drop function
 	const onDrop = (acceptedFiles) => {
 		const file = acceptedFiles[0];
-		fileNameString = file['name'].split('.').slice(0, -1).join('.');;
+		fileNameString = file['name'];
 		if (Object.keys(selLayer).length) {
 			dispatch({ type: 'REMOVESELLAYER' })
 		}
@@ -290,7 +385,12 @@ const MyDropzone = () => {
 				})
 			} else {
 				const json = JSON.parse(reader.result);
+				modifyImportedJSON(json);
+				const svg = convertJsonToSvg(json);
+				const svgString = svg.outerHTML; 
+				$('#canvas').html(svgString);
 				dispatch({ type: 'CHANGESVGJSON', payload: json });
+				dispatch({ type: 'CHANGESVGSTRING', payload: svgString });
 			}
 		}
 		reader.readAsText(file);

@@ -139,7 +139,7 @@ const OperationsContainer = () => {
                     <select id="erase-layer-select" className="form-select d-inline align-middle fs-10p me-2" defaultValue="1">
                         {options}
                     </select>
-                    <button className="btn btn-dark d-inline align-middle fs-10p" onClick={addEraseLayer}>Add Erase Layer</button>
+                    <button className="btn btn-dark d-inline align-middle fs-10p" onClick={addEraseLayer}>Add Erase Layer Below</button>
                 </div>
 
                 <div className={selLayer.type === 'erase' ? "mx-4" : selLayer.type === 'group' ? "mx-4" : "invisible mx-4"} onChange={changeDrawType}>

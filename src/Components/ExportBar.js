@@ -81,11 +81,27 @@ const ExportBar = () => {
 		setIsOpen(false);
 	};
 
+	const hideAllLayers = () => {
+		const svgEl = $('#main-svg').children();
+	}
+	
+	const showAllLayers = () => {
+		
+	}
+
     return (
-        <div>
+        <div className="d-flex justify-content-between">
             <button onClick={openModal} className="btn btn-sm btn-light">
 				Export JSON
 			</button>
+			<div>
+				<button onClick={showAllLayers} className="ms-2 btn btn-sm btn-outline-light">
+					<i className = "fa fa-eye"></i>
+				</button>
+				<button onClick={hideAllLayers} className="ms-2 btn btn-sm btn-outline-light">
+					<i className = "fa fa-eye-slash"></i>
+				</button>
+			</div>
             <Modal
 				isOpen={modalIsOpen}
 				onAfterOpen={afterOpenModal}

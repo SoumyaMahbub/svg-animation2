@@ -12,7 +12,7 @@ const LayerContainer = () => {
 	let layerList = [];
 
 	const generateLayer = (layer, type) => {
-		if (type !== "grouped") {
+		if (type !== "grouped") {	
 			layerList.push(layer.name);
 		}
 		const key = layerKey;
