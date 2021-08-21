@@ -1,22 +1,31 @@
 # SVG to JSON for Art Guide
 
 ## Local
-
+Start container
 ```
+cd TO_PATH
+git clone CLONE_URL
 docker-compose up -d --build
 ```
+Stop container
 
 ```
+cd TO_PATH
 docker-compose stop
 ```
 
 ## Production
-
+Start container
 ```
+cd TO_PATH
+git clone CLONE_URL
 docker-compose -f docker-compose.prod.yml up -d --build
+sudo ufw allow 8086/tcp
 ```
+Stop container
 ```
-docker-compose stop
+cd TO_PATH
+docker-compose -f docker-compose.prod.yml stop
 ```
 
 # Getting Started with Create React App
