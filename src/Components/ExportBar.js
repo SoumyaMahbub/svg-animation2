@@ -82,11 +82,32 @@ const ExportBar = () => {
 	};
 
 	const hideAllLayers = () => {
-		const svgEl = $('#main-svg').children();
+		const mainSvgLayers = $('#main-svg').children();
+		const layerContainerLayers = $('.first-level');
+		for (var i = 0; i < mainSvgLayers.length; i++) {
+			mainSvgLayers.eq(i).addClass('invisible');
+		}
+		for (var i = 0; i < layerContainerLayers.length; i++){
+			layerContainerLayers.eq(i).children().eq(1).removeClass('fa-eye');
+			layerContainerLayers.eq(i).children().eq(1).addClass('fa-eye-slash');
+		}
 	}
 	
 	const showAllLayers = () => {
-		
+		const mainSvgLayers = $('#main-svg').children();
+		const layerContainerLayers = $('#layer-container').children();
+		for (var i = 0; i < mainSvgLayers.length; i++) {
+			mainSvgLayers.eq(i).removeClass('invisible');
+			if (mainSvgLayers[i].nodeName === "g") {
+				for (var j = 0; j < mainSvgLayers.eq(i).children().length; j++) {
+					mainSvgLayers.eq(i).children().eq(j).removeClass('invisible');
+				}
+			}
+		}
+		for (var i = 0; i < layerContainerLayers.length; i++) {
+			layerContainerLayers.eq(i).children().eq(1).removeClass('fa-eye-slash');
+			layerContainerLayers.eq(i).children().eq(1).addClass('fa-eye');
+		}
 	}
 
     return (

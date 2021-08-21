@@ -147,7 +147,7 @@ const Layer = (props) => {
 			className={
 				props.type === "grouped"
 					? "border border-2 p-3 d-flex justify-content-between"
-					: "border border-2 p-3 d-flex justify-content-between bg-secondary"
+					: "border border-2 p-3 d-flex justify-content-between bg-secondary first-level"
 			}
 			style={{ cursor: "pointer" }}
 		>
