@@ -140,25 +140,51 @@ const Layer = (props) => {
 		}
 	}
 
+	const toggleSubLayers = (e) => {
+		if ($(e.currentTarget).hasClass('fa-chevron-right')) {
+			$(e.currentTarget).removeClass('fa-chevron-right');
+			$(e.currentTarget).addClass('fa-chevron-down');
+		} else {
+			$(e.currentTarget).removeClass('fa-chevron-down');
+			$(e.currentTarget).addClass('fa-chevron-right');
+		}
+	}
+
 	return (
 		<div
 			onClick={clickOnLayer}
+			id = {props.type === "grouped" ? "sublayer_" + props.groupName : ""}
 			data-layer-name={props.name}
 			className={
 				props.type === "grouped"
-					? "border border-2 p-3 d-flex justify-content-between"
-					: "border border-2 p-3 d-flex justify-content-between bg-secondary first-level"
+					? "collapse"
+					: "border border-2 p-3"
 			}
 			style={{ cursor: "pointer" }}
 		>
-			<div className="d-flex">
-				<p className={props.type === "grouped" ? "my-auto ms-4 align-self-center" : "my-auto align-self-center"}>{props.name}</p>
+			{props.type === "grouped"?
+				<div className="border border-2 p-3 d-flex justify-content-between">
+					<p className="ms-4 my-auto align-self-center">{props.name}</p>
+				</div>
+			:props.type == "group" ?
+				<div className ="d-flex justify-content-between first-level">
+					<div className="d-flex">
+						<i className="fas fa-fw fa-chevron-right align-self-center me-2 py-2 pe-2" data-bs-toggle="collapse" data-bs-target={"#sublayer_" + props.name} onClick={toggleSubLayers}></i>
+						<p className="my-auto align-self-center">{props.name}</p>
+					</div>
+					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
+				</div>
+			:
+			<div className ="d-flex justify-content-between first-level">
+				<div className="d-flex">
+					<p className="my-auto align-self-center">
+						{props.name}
+					</p>
+				</div>
+				<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
 			</div>
-			{props.layerType !== "erase" ?
-				<i className="fa fa-eye align-self-center" onClick={toggleVisibilty}></i>
-				:
-				""
 			}
+			
 		</div>
 	);
 };

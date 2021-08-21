@@ -2,7 +2,7 @@
     color: #000;
 }
 #selected {
-    border: 2px solid rgb(33, 129, 207)!important; 
+    background-color: rgb(125, 125, 125);
 }
 .cur-p {
     cursor: pointer;

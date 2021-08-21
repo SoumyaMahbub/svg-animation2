@@ -4,6 +4,7 @@ import { useDropzone } from "react-dropzone";
 import { parse } from "svgson";
 import $ from 'jquery';
 import { main } from "@popperjs/core";
+import { remove } from "immutable";
 
 const MyDropzone = () => {
 
@@ -278,7 +279,8 @@ const MyDropzone = () => {
 				}
 			} else if (groups[i].nodeName === "title") {
 				svgDoc.children[0].removeChild(groups[i]);
-			} else if (groups[i].nodeName !== "path") {
+				i--;
+			}  else if (groups[i].nodeName !== "path") {
 				const convertedPath = elToPath(groups[i]);
 				svgDoc.children[0].removeChild(groups[i]);
 				if (groups[i]) {
@@ -373,7 +375,8 @@ const MyDropzone = () => {
 		const reader = new FileReader();
 		reader.onload = () => {
 			if (file.type === "image/svg+xml") {
-				const svgString = parseSvg(reader.result)
+				const svgString = parseSvg(reader.result);
+				console.log(svgString);
 				$('#canvas').html(svgString);
 				$('svg').attr('id', 'main-svg');
 				$('svg').addClass('position-absolute w-100 h-100');

@@ -126,31 +126,31 @@ const OperationsContainer = () => {
 
             <div className={selLayer.name ? "d-flex mb-3" : "d-flex invisible mb-3"}>
                 <div className="input-group me-3">
-                    <span className="input-group-text fs-10p">Subtitle</span>
-                    <input type="text" id="subtitle-input" className="form-control fs-10p" placeholder="Write subtitle for layer here" onBlur={updateSubtitle} autoComplete="off" />
+                    <span className="input-group-text">Subtitle</span>
+                    <input type="text" id="subtitle-input" className="form-control" placeholder="Write subtitle for layer here" onBlur={updateSubtitle} autoComplete="off" />
                 </div>
-                <button onClick={deleteLayer} className="flex-shrink-0 btn btn-danger fs-10p me-3"><i class="fas fa-trash-alt"></i></button>
+                <button onClick={deleteLayer} className="flex-shrink-0 btn btn-danger me-3"><i class="fas fa-trash-alt"></i></button>
             </div>
 
 
             <div className="d-flex">
 
                 <div className={selLayer.name ? "d-flex w-25 flex-shrink-0 mb-2" : "invisible d-flex w-25 flex-shrink-0 mb-2"}>
-                    <select id="erase-layer-select" className="form-select d-inline align-middle fs-10p me-2" defaultValue="1">
+                    <select id="erase-layer-select" className="form-select d-inline align-middle me-2" defaultValue="1">
                         {options}
                     </select>
-                    <button className="btn btn-dark d-inline align-middle fs-10p" onClick={addEraseLayer}>Add Erase Layer Below</button>
+                    <button className="btn btn-dark d-inline align-middle" onClick={addEraseLayer}>Add Erase Layer Below</button>
                 </div>
 
                 <div className={selLayer.type === 'erase' ? "mx-4" : selLayer.type === 'group' ? "mx-4" : "invisible mx-4"} onChange={changeDrawType}>
                     <h6 className="mb-0">Mode: </h6>
-                    <div className="form-check fs-10p form-check-inline">
+                    <div className="form-check form-check-inline">
                         <input className="form-check-input" data-value="sequential" type="radio" name="drawTypeRadio" id="sequentialRadio" />
                         <label className="form-check-label" htmlFor="sequentialRadio">
                             Sequential
                         </label>
                     </div>
-                    <div className="form-check fs-10p form-check-inline">
+                    <div className="form-check form-check-inline">
                         <input className="form-check-input" data-value="parallel" type="radio" name="drawTypeRadio" id="parallelRadio" />
                         <label className="form-check-label" htmlFor="parallelRadio">
                             Parallel
@@ -161,7 +161,7 @@ const OperationsContainer = () => {
 
             </div>
 
-            <div className={selLayer['strokeWidth'] ? "d-flex fs-10p" : "invisible d-flex fs-10p"}>
+            <div className={selLayer['strokeWidth'] ? "d-flex" : "invisible d-flex"}>
 
                 <div id="stroke-width-group" className="d-flex flex-column me-2">
                     <label className="text-secondary" htmlFor="stroke-width-input">Stroke width:</label>
@@ -185,7 +185,7 @@ const OperationsContainer = () => {
 
             </div>
 
-            <div className={selLayer['fillColor'] ? "d-flex fs-10p" : "invisible d-flex fs-10p"}>
+            <div className={selLayer['fillColor'] ? "d-flex" : "invisible d-flex"}>
 
                 <div id="fill-color-group" className="d-flex flex-column me-2">
                     <label className="text-secondary" htmlFor="fill-color-input">fill Color:</label>

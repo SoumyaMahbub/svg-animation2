@@ -11,20 +11,20 @@ const LayerContainer = () => {
 	let layerKey = 1;
 	let layerList = [];
 
-	const generateLayer = (layer, type) => {
-		if (type !== "grouped") {	
+	const generateLayer = (layer, type, groupName="") => {
+		if (type !== "grouped") {
 			layerList.push(layer.name);
-		}
+		}	
 		const key = layerKey;
 		if (layer.type !== "group") {
-			newLayerElements.push(<Layer key={10000 + key} name={layer.name} type={type} layerType={layer.type} />)
+			newLayerElements.push(<Layer key={10000 + key} name={layer.name} type={type} groupName={groupName} layerType={layer.type} />)
 			layerKey++;
 		} else {
-			newLayerElements.push(<Layer key={10000 + key} name={layer.name} type="group" layerType={layer.type} />)
+			newLayerElements.push(<Layer key={10000 + key} name={layer.name} type="group" layerType={layer.type}/>)
 			layerKey++;
-			layer["layers"].forEach((subLayer) => {
-				generateLayer(subLayer, "grouped");
-			});
+			layer['layers'].forEach(subLayer => {
+				generateLayer(subLayer, "grouped", layer.name);
+			})
 		}
 	};
 
