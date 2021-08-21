@@ -13,17 +13,17 @@ const Layer = (props) => {
 		// if selLayer exists
 		if (Object.keys(selLayer).length !== 0) {
 			// if there is selected element
-			if ($('#selected').length) {
-				$('#selected').removeAttr("id");
+			if ($('.selected').length) {
+				$('.selected').removeClass("selected");
 			}
-			$("[data-layer-name=" + selLayer.name + "]").attr('id', 'selected');
+			$("[data-layer-name=" + selLayer.name + "]").addClass('selected');
 
 		}
 		// if selLayer doesn't exist
 		else {
 			// if there is selected element
-			if ($('#selected').length) {
-				$("#selected").removeAttr("id");
+			if ($('.selected').length) {
+				$(".selected").removeClass("selected");
 			}
 		}
 	}, [selLayer]);
@@ -97,7 +97,7 @@ const Layer = (props) => {
 			// if there is selected element
 			if (Object.keys(selLayer).length !== 0) {
 				// if selected element is not the one clicked
-				if ($("#selected").get(0) !== clickedEl.get(0)) {
+				if ($(".selected").get(0) !== clickedEl.get(0)) {
 					if (selLayer.type === "group") {
 						unhighlightGroup();
 					} else if (selLayer.type === "draw") {
@@ -126,7 +126,7 @@ const Layer = (props) => {
 
 	const toggleVisibilty = (e) => {
 		const eyeEl =  $(e.target);
-		const layerName = $(eyeEl).parent().attr('data-layer-name');
+		const layerName = $(eyeEl).parent().parent().attr('data-layer-name');
 		const svgLayerEl = $("#" + layerName)
 		if (eyeEl.hasClass('fa-eye')) {
 			svgLayerEl.addClass('invisible');

@@ -21,6 +21,7 @@ const customStyles = {
 
 const ExportBar = () => {
     const svgJson = useSelector(state => state.svgJson);
+	const file = useSelector(state => state.fileName);
     const [modalIsOpen, setIsOpen] = useState(false);
 
 	const cutParent = (json , newJson) => {
@@ -73,8 +74,12 @@ const ExportBar = () => {
 	};
 
     const afterOpenModal = () => {
-		const newJson = cutJson(svgJson);
-        $('#code-area').text(JSON.stringify(newJson, null, "\t"));
+		try {
+			const newJson = cutJson(svgJson);
+			$('#code-area').text(JSON.stringify(newJson, null, "\t"));
+		} catch (e) {
+			console.log(e);
+		}
     }
 
     const closeModal = () => {
@@ -110,16 +115,35 @@ const ExportBar = () => {
 		}
 	}
 
+	const downloadJsonFile = async () => {
+		const newJson = cutJson(svgJson);
+		const fileName = file.split('.').slice(0, -1).join('.');
+		const json = JSON.stringify(newJson, null, "\t");
+		const blob = new Blob([json],{type:'application/json'});
+		const href = await URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = href;
+		link.download = fileName + ".json";
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}
+
     return (
         <div className="d-flex justify-content-between">
-            <button onClick={openModal} className="btn btn-sm btn-light">
-				Export JSON
-			</button>
 			<div>
-				<button onClick={showAllLayers} className="ms-2 btn btn-sm btn-outline-light">
+				<button onClick={openModal} className="me-2 btn btn-sm btn-outline-light">
+					<i className="fas fa-code"></i>
+				</button>
+				<button onClick={downloadJsonFile} className="btn btn-sm btn-outline-light">
+					<i className="fas fa-download"></i>
+				</button>
+			</div>
+			<div>
+				<button onClick={showAllLayers} className="me-2 btn btn-sm btn-outline-light">
 					<i className = "fa fa-eye"></i>
 				</button>
-				<button onClick={hideAllLayers} className="ms-2 btn btn-sm btn-outline-light">
+				<button onClick={hideAllLayers} className="btn btn-sm btn-outline-light">
 					<i className = "fa fa-eye-slash"></i>
 				</button>
 			</div>
