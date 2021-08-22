@@ -167,7 +167,7 @@ const Layer = (props) => {
 			{props.type === "grouped"?
 				<div className="border border-2 p-3 d-flex justify-content-between">
 					<div className="d-flex">
-						<p className="my-auto align-self-center ">{props.name}</p>
+						<p className="my-auto align-self-center ms-5">{props.name}</p>
 					</div>
 					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
 				</div>
