@@ -295,9 +295,22 @@ const MyDropzone = () => {
 		}
 	}
 
+	const trimDoc = svgEl => {
+		for (var i = 0; i < svgEl.children().length; i++) {
+			if (svgEl.children()[i].nodeName === "defs") {
+				svgEl.children().eq(i).remove();
+			}
+		}
+		if (svgEl.children().length === 1) {
+			const cnt = svgEl.children().eq(0).contents();
+			svgEl.children().eq(0).replaceWith(cnt); 
+		}
+	}
+
 	const parseSvg = (svgString) => {
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(svgString, "image/svg+xml");
+		trimDoc($(doc).children().eq(0));
 		convertToPath(doc);
 		const mainSvg = $(doc).children().eq(0);
 		removeSingleLayerGroup(mainSvg);
@@ -377,7 +390,6 @@ const MyDropzone = () => {
 		reader.onload = () => {
 			if (file.type === "image/svg+xml") {
 				const svgString = parseSvg(reader.result);
-				console.log(svgString);
 				$('#canvas').html(svgString);
 				$('svg').attr('id', 'main-svg');
 				$('svg').addClass('position-absolute w-100 h-100');
