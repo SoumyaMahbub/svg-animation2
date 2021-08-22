@@ -9,12 +9,8 @@ const LayerContainer = () => {
 	const [layerElements, setLayerElements] = useState([]);
 	let newLayerElements = [];
 	let layerKey = 1;
-	let layerList = [];
 
 	const generateLayer = (layer, type, groupName="") => {
-		if (type !== "grouped") {
-			layerList.push(layer.name);
-		}	
 		const key = layerKey;
 		if (layer.type !== "group") {
 			newLayerElements.push(<Layer key={10000 + key} name={layer.name} type={type} groupName={groupName} layerType={layer.type} />)
@@ -36,13 +32,11 @@ const LayerContainer = () => {
 			if (layerElements.length !== 0) {
 				setLayerElements([])
 			}
-			layerList = [];
 			newLayerElements = [];
 			svgJson.layers.forEach((layer) => {
 				generateLayer(layer, "normal");
 			});
 			setLayerElements(newLayerElements);
-			dispatch({type: 'CHANGELAYERLIST', payload: layerList});
 		}
 	}, [svgJson]);
 

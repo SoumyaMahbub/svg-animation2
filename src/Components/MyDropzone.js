@@ -12,15 +12,8 @@ const MyDropzone = () => {
 	let groupNumber = 1;
 	let fileNameString;
 	const fileName = useSelector((state) => state.fileName);
-	const layerList = useSelector((state) => state.layerList);
 	const selLayer = useSelector((state) => state.selLayer.layer);
 	const dispatch = useDispatch();
-
-	useEffect(() => {
-		if (layerList.length) {
-			dispatch({ type: "REMOVELAYERLIST" })
-		}
-	}, [fileName])
 
 	const parseHexColor = value => {
 		if (value === "black" || value === "white") {
@@ -364,6 +357,14 @@ const MyDropzone = () => {
 		return svg
 	}
 
+	const addLayersToNewLayerList = (layers, newLayerList) => {
+		layers.forEach(layer => {
+			if (layer.type !== 'erase'){
+				newLayerList.push(layer.name);
+			}
+		})
+	}
+
 	// on drop function
 	const onDrop = (acceptedFiles) => {
 		const file = acceptedFiles[0];
@@ -383,6 +384,9 @@ const MyDropzone = () => {
 				parse(svgString).then((json) => {
 					modifyJSON(json);
 					addLayerNamesToSvg(json.layers, $('#main-svg').children());
+					const newLayerList = [];
+					addLayersToNewLayerList(json['layers'], newLayerList);
+					dispatch({type: 'CHANGELAYERLIST', payload: newLayerList});
 					dispatch({ type: 'CHANGESVGJSON', payload: json });
 					dispatch({ type: 'CHANGESVGSTRING', payload: reader.result });
 				})
@@ -392,6 +396,9 @@ const MyDropzone = () => {
 				const svg = convertJsonToSvg(json);
 				const svgString = svg.outerHTML; 
 				$('#canvas').html(svgString);
+				const newLayerList = [];
+				addLayersToNewLayerList(json['layers'], newLayerList);
+				dispatch({type: 'CHANGELAYERLIST', payload: newLayerList});
 				dispatch({ type: 'CHANGESVGJSON', payload: json });
 				dispatch({ type: 'CHANGESVGSTRING', payload: svgString });
 			}

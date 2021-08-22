@@ -12,7 +12,6 @@ const OperationsContainer = () => {
     const layers = svgJson.layers
     const layerList = useSelector((state) => state.layerList);
     const [options, setOptions] = useState([]);
-    const [erasableLayers, setErasableLayers] = useState([...layerList]);
     let newOptions = [];
 
     // selected Layer change
@@ -20,7 +19,16 @@ const OperationsContainer = () => {
         // set Erase Lyaer Options
         setOptions([]);
         if (Object.keys(selLayer).length !== 0) {
-            const layersBeforeSel = layerList.slice(0, selLayerIdx[0]+1);
+            let layersBeforeSel;
+            if (selLayer.type !== "erase") {
+                layersBeforeSel = layerList.slice(0, layerList.indexOf(selLayer.name) + 1);
+            } else {
+                layers.forEach((layer,idx) => {
+                    if (layer.name === selLayer.name) {
+                        layersBeforeSel = layerList.slice(0, layerList.indexOf(layers[idx-1].name) + 1);
+                    }
+                })
+            }
             let valueCounter = 1;
             newOptions = [];
             layersBeforeSel.forEach((layer) => {
@@ -86,13 +94,26 @@ const OperationsContainer = () => {
         dispatch({ type: 'CHANGESVGJSON', payload: newJson });
     }
 
-    const addEraseLayer = () => {
+    const addEraseLayer = (e) => {
         const eraseLayerJson = {
             type: 'erase',
             name: 'erase_' + $('#erase-layer-select').val(),
             drawMode: 'parallel'
         }
         changeSingleLayer('add', eraseLayerJson);
+        const newLayerList = [...layerList];
+        newLayerList.splice(layerList.indexOf($('#erase-layer-select').val()), 1);
+        dispatch({type: "CHANGELAYERLIST", payload: newLayerList});
+        const layersBeforeSel = layerList.slice(0, layerList.indexOf(selLayer.name) + 1);
+        layersBeforeSel.splice(layerList.indexOf($('#erase-layer-select').val()), 1);
+        let valueCounter = 1;
+        newOptions = [];
+        layersBeforeSel.forEach((layer) => {
+            const key = valueCounter;
+            newOptions.push(<option key={key} value={layer}>{layer}</option>);
+            valueCounter++;
+        })
+        setOptions(newOptions);
     }
 
     const changeDrawType = () => {
@@ -119,6 +140,21 @@ const OperationsContainer = () => {
 
     const deleteLayer = () => {
         changeSingleLayer('delete', "");
+        const newLayerList = [...layerList];
+        if (selLayer.type === "erase") {
+            const erasedLayerName = selLayer.name.replace('erase_', "");
+            let index; 
+            layers.forEach((layer,idx) => {
+                if (layer.name === erasedLayerName) {
+                    index = idx - 1;
+                }
+            })
+            newLayerList.splice(index, 0, erasedLayerName);
+            dispatch({type: 'CHANGELAYERLIST', payload: newLayerList});
+        }else {
+            newLayerList.splice(layerList.indexOf(selLayer.name), 1);
+            dispatch({type: 'CHANGELAYERLIST', payload: newLayerList});
+        }
     }
 
     return (
@@ -129,18 +165,18 @@ const OperationsContainer = () => {
                     <span className="input-group-text">Subtitle</span>
                     <input type="text" id="subtitle-input" className="form-control" placeholder="Write subtitle for layer here" onBlur={updateSubtitle} autoComplete="off" />
                 </div>
-                <button onClick={deleteLayer} className="flex-shrink-0 btn btn-danger me-3"><i class="fas fa-trash-alt"></i></button>
+                <button onClick={deleteLayer} className="flex-shrink-0 btn btn-danger me-3"><i className="fas fa-trash-alt"></i></button>
             </div>
 
 
             <div className="row">
 
                 <div className={selLayer.name ? "d-flex col mb-2" : "invisible d-flex col mb-2"}>
-                    <div class="input-group">
-                        <select id="erase-layer-select" class="form-select" defaultValue="1">
+                    <div className="input-group">
+                        <select id="erase-layer-select" className="form-select" defaultValue="1">
                             {options}
                         </select>
-                        <button class="btn btn-secondary" type="button" onClick={addEraseLayer}>Add Erase Layer Below</button>
+                        <button className="btn btn-secondary" type="button" onClick={addEraseLayer}>Add Erase Layer Below</button>
                     </div>
                 </div>
 

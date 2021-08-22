@@ -166,21 +166,23 @@ const Layer = (props) => {
 		>
 			{props.type === "grouped"?
 				<div className="border border-2 p-3 d-flex justify-content-between">
-					<p className="ms-4 my-auto align-self-center">{props.name}</p>
+					<div className="d-flex">
+						<p className="my-auto align-self-center ">{props.name}</p>
+					</div>
 					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
 				</div>
 			:props.type == "group" ?
 				<div className ="d-flex justify-content-between first-level group">
 					<div className="d-flex">
-						<i className="fas fa-fw fa-chevron-right align-self-center me-2 py-2 pe-2" data-bs-toggle="collapse" data-bs-target={"#sublayer_" + props.name} onClick={toggleSubLayers}></i>
-						<p className="my-auto align-self-center">{props.name}</p>
+						<i className="fas fa-fw fa-chevron-right align-self-center py-2 pe-2" data-bs-toggle="collapse" data-bs-target={"#sublayer_" + props.name} onClick={toggleSubLayers}></i>
+						<p className="my-auto align-self-center flex-grow-0">{props.name}</p>
 					</div>
 					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
 				</div>
 			:
 			<div className ="d-flex justify-content-between first-level">
 				<div className="d-flex">
-					<p className="my-auto align-self-center">
+					<p className="my-auto align-self-center ">
 						{props.name}
 					</p>
 				</div>
