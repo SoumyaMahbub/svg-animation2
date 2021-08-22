@@ -105,13 +105,13 @@ const ExportBar = () => {
 			mainSvgLayers.eq(i).removeClass('invisible');
 			if (mainSvgLayers[i].nodeName === "g") {
 				for (var j = 0; j < mainSvgLayers.eq(i).children().length; j++) {
-					mainSvgLayers.eq(i).children().eq(j).removeClass('invisible');
+						mainSvgLayers.eq(i).children().eq(0).children().eq(j).removeClass('invisible');
+					}
 				}
 			}
-		}
 		for (var i = 0; i < layerContainerLayers.length; i++) {
-			layerContainerLayers.eq(i).children().eq(1).removeClass('fa-eye-slash');
-			layerContainerLayers.eq(i).children().eq(1).addClass('fa-eye');
+			layerContainerLayers.eq(i).children().eq(0).children().eq(1).removeClass('fa-eye-slash');
+			layerContainerLayers.eq(i).children().eq(0).children().eq(1).addClass('fa-eye');
 		}
 	}
 
@@ -128,6 +128,33 @@ const ExportBar = () => {
 		link.click();
 		document.body.removeChild(link);
 	}
+	
+	const expandAllLayers = () => {
+		const groupedLayers = $('.collapse');
+		const groupLayers = $('.group');
+		for (var i = 0; i < groupLayers.length; i++) {
+			groupLayers.eq(i).children().eq(0).children().eq(0).removeClass('fa-chevron-right');
+			groupLayers.eq(i).children().eq(0).children().eq(0).addClass('fa-chevron-down');
+		}  
+		for(var i = 0; i < groupedLayers.length; i++) {
+			if (groupedLayers.eq(i).hasClass('show') === false) {
+				groupedLayers.eq(i).addClass('show');
+			}
+		}
+	}
+	const collapseAllLayers = () => {
+		const groupedLayers = $('.collapse');
+		const groupLayers = $('.group');
+		for (var i = 0; i < groupLayers.length; i++) {
+			groupLayers.eq(i).children().eq(0).children().eq(0).removeClass('fa-chevron-down');
+			groupLayers.eq(i).children().eq(0).children().eq(0).addClass('fa-chevron-right');
+		}  
+		for(var i = 0; i < groupedLayers.length; i++) {
+			if (groupedLayers.eq(i).hasClass('show')) {
+				groupedLayers.eq(i).removeClass('show');
+			}
+		}
+	}
 
     return (
         <div className="d-flex justify-content-between">
@@ -137,6 +164,14 @@ const ExportBar = () => {
 				</button>
 				<button onClick={downloadJsonFile} className="btn btn-sm btn-outline-light">
 					<i className="fas fa-download"></i>
+				</button>
+			</div>
+			<div>
+				<button onClick={expandAllLayers} className="me-2 btn btn-sm btn-outline-light">
+					<i className="fas fa-expand"></i>
+				</button>
+				<button onClick={collapseAllLayers} className="btn btn-sm btn-outline-light">
+					<i className="fas fa-compress"></i>
 				</button>
 			</div>
 			<div>
@@ -165,4 +200,4 @@ const ExportBar = () => {
     )
 }
 
-export default ExportBar
+export default ExportBar;

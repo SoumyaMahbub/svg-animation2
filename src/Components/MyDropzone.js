@@ -191,7 +191,7 @@ const MyDropzone = () => {
 					return '';
 				}
 		
-				const output = 'M' + (cx - rx).toString() + ',' + cy.toString();
+				let output = 'M' + (cx - rx).toString() + ',' + cy.toString();
 				output += 'a' + rx.toString() + ',' + ry.toString() + ' 0 1,0 ' + (2 * rx).toString() + ',0';
 				output += 'a' + rx.toString() + ',' + ry.toString() + ' 0 1,0'  + (-2 * rx).toString() + ',0';
 		

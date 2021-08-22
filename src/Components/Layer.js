@@ -140,7 +140,9 @@ const Layer = (props) => {
 		}
 	}
 
-	const toggleSubLayers = (e) => {
+	const delay = ms => new Promise(res => setTimeout(res, ms));
+
+	const toggleSubLayers = async (e) => {
 		if ($(e.currentTarget).hasClass('fa-chevron-right')) {
 			$(e.currentTarget).removeClass('fa-chevron-right');
 			$(e.currentTarget).addClass('fa-chevron-down');
@@ -165,9 +167,10 @@ const Layer = (props) => {
 			{props.type === "grouped"?
 				<div className="border border-2 p-3 d-flex justify-content-between">
 					<p className="ms-4 my-auto align-self-center">{props.name}</p>
+					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
 				</div>
 			:props.type == "group" ?
-				<div className ="d-flex justify-content-between first-level">
+				<div className ="d-flex justify-content-between first-level group">
 					<div className="d-flex">
 						<i className="fas fa-fw fa-chevron-right align-self-center me-2 py-2 pe-2" data-bs-toggle="collapse" data-bs-target={"#sublayer_" + props.name} onClick={toggleSubLayers}></i>
 						<p className="my-auto align-self-center">{props.name}</p>
@@ -181,7 +184,10 @@ const Layer = (props) => {
 						{props.name}
 					</p>
 				</div>
-				<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
+				{props.layerType !== "erase" ?
+					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
+					: ""
+				}
 			</div>
 			}
 			

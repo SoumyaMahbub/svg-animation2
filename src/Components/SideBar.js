@@ -9,7 +9,7 @@ const SideBar = () => {
             <MyDropzone />
             <div className="w-100 bg-white my-2" style={{height: '1px'}}></div>
             <LayerContainer />
-            <div class="w-100 bg-white my-2" style={{height: '1px'}}></div>
+            <div className="w-100 bg-white my-2" style={{height: '1px'}}></div>
             <ExportBar />    
         </div>
     )
