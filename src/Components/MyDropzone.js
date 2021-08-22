@@ -417,7 +417,7 @@ const MyDropzone = () => {
 
 	// JSX
 	return (
-		<div {...getRootProps()} className="text-center p-2" style={fileName ? null : { border: '1px dashed #eee' }}>
+		<div {...getRootProps()} className="text-center p-2 rounded-3 bg-dark cursor-pointer">
 			{fileName ?
 				<div>
 					<input {...getInputProps()} />

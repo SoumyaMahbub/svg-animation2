@@ -41,7 +41,7 @@ const LayerContainer = () => {
 	}, [svgJson]);
 
 	return (
-		<div id="layer-container" className="overflow-auto">
+		<div id="layer-container" className="overflow-auto my-3">
 			{layerElements}
 		</div>
 	);

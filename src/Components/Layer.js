@@ -17,6 +17,7 @@ const Layer = (props) => {
 				$('.selected').removeClass("selected");
 			}
 			$("[data-layer-name=" + selLayer.name + "]").addClass('selected');
+			$("[data-layer-name=" + selLayer.name + "]").children().eq(0).addClass('selected');
 
 		}
 		// if selLayer doesn't exist
@@ -160,16 +161,16 @@ const Layer = (props) => {
 			className={
 				props.type === "grouped"
 					? "collapse"
-					: "border border-2 p-3"
+					: "bg-dark p-3"
 			}
 			style={{ cursor: "pointer" }}
 		>
 			{props.type === "grouped"?
-				<div className="border border-2 p-3 d-flex justify-content-between">
+				<div className="p-3 d-flex justify-content-between" style={{backgroundColor: '#15181c'}}>
 					<div className="d-flex">
 						<p className="my-auto align-self-center ms-5">{props.name}</p>
 					</div>
-					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
+					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash fa-fw align-self-center" : "fa fa-eye fa-fw align-self-center"} onClick={toggleVisibilty}></i>
 				</div>
 			:props.type == "group" ?
 				<div className ="d-flex justify-content-between first-level group">
@@ -177,7 +178,7 @@ const Layer = (props) => {
 						<i className="fas fa-fw fa-chevron-right align-self-center py-2 pe-2" data-bs-toggle="collapse" data-bs-target={"#sublayer_" + props.name} onClick={toggleSubLayers}></i>
 						<p className="my-auto align-self-center flex-grow-0">{props.name}</p>
 					</div>
-					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
+					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash fa-fw align-self-center" : "fa fa-eye fa-fw align-self-center"} onClick={toggleVisibilty}></i>
 				</div>
 			:
 			<div className ="d-flex justify-content-between first-level">
@@ -187,7 +188,7 @@ const Layer = (props) => {
 					</p>
 				</div>
 				{props.layerType !== "erase" ?
-					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash align-self-center" : "fa fa-eye align-self-center"} onClick={toggleVisibilty}></i>
+					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash fa-fw align-self-center" : "fa fa-eye fa-fw align-self-center"} onClick={toggleVisibilty}></i>
 					: ""
 				}
 			</div>

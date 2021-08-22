@@ -5,11 +5,9 @@ import ExportBar from './ExportBar';
 
 const SideBar = () => {
     return (
-        <div className="d-flex flex-column flex-shrink-0 bg-dark text-white p-3 vh-100" style={{width: '330px'}}>
+        <div className="d-flex flex-column flex-shrink-0 bg-secondary text-white p-3 vh-100 shadow-lg" style={{width: '330px'}}>
             <MyDropzone />
-            <div className="w-100 bg-white my-2" style={{height: '1px'}}></div>
             <LayerContainer />
-            <div className="w-100 bg-white my-2" style={{height: '1px'}}></div>
             <ExportBar />    
         </div>
     )

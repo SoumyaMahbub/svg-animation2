@@ -159,27 +159,27 @@ const ExportBar = () => {
     return (
         <div className="d-flex justify-content-between">
 			<div>
-				<button onClick={openModal} className="me-2 btn btn-sm btn-outline-light">
-					<i className="fas fa-code"></i>
+				<button onClick={openModal} className="me-2 btn btn-sm btn-dark">
+					<i className="fas fa-code fa-fw"></i>
 				</button>
-				<button onClick={downloadJsonFile} className="btn btn-sm btn-outline-light">
-					<i className="fas fa-download"></i>
-				</button>
-			</div>
-			<div>
-				<button onClick={expandAllLayers} className="me-2 btn btn-sm btn-outline-light">
-					<i className="fas fa-expand"></i>
-				</button>
-				<button onClick={collapseAllLayers} className="btn btn-sm btn-outline-light">
-					<i className="fas fa-compress"></i>
+				<button onClick={downloadJsonFile} className="btn btn-sm btn-dark">
+					<i className="fas fa-download fa-fw"></i>
 				</button>
 			</div>
 			<div>
-				<button onClick={showAllLayers} className="me-2 btn btn-sm btn-outline-light">
-					<i className = "fa fa-eye"></i>
+				<button onClick={expandAllLayers} className="me-2 btn btn-sm btn-dark">
+					<i className="fas fa-expand fa-fw"></i>
 				</button>
-				<button onClick={hideAllLayers} className="btn btn-sm btn-outline-light">
-					<i className = "fa fa-eye-slash"></i>
+				<button onClick={collapseAllLayers} className="btn btn-sm btn-dark">
+					<i className="fas fa-compress fa-fw"></i>
+				</button>
+			</div>
+			<div>
+				<button onClick={showAllLayers} className="me-2 btn btn-sm btn-dark">
+					<i className = "fa fa-eye fa-fw"></i>
+				</button>
+				<button onClick={hideAllLayers} className="btn btn-sm btn-dark">
+					<i className = "fa fa-eye-slash fa-fw"></i>
 				</button>
 			</div>
             <Modal

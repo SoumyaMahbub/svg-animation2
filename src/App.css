@@ -2,7 +2,7 @@
     color: #000;
 }
 .selected {
-    background-color: rgb(125, 125, 125);
+    background-color: #304ffe!important;
 }
 .cur-p {
     cursor: pointer;
@@ -15,4 +15,7 @@
 }
 .fs-10p {
     font-size: 10px !important;
+}
+.cursor-pointer {
+    cursor: pointer;
 }
