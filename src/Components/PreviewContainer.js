@@ -8,7 +8,7 @@ const PreviewContainer = () => {
     const svgString = useSelector(state => state.svgString);
     return (
         <div className="flex-grow-1 d-flex bg-dark">
-            <div id="canvas" className="mx-auto my-2 bg-white w-90 position-relative" style={{height: '60vh'}}>
+            <div id="canvas" className="mx-auto my-2 bg-white w-90 h-90 position-relative">
             </div>
         </div>
     )
