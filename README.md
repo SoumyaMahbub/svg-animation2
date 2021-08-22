@@ -15,12 +15,16 @@ docker-compose stop
 ```
 
 ## Production
-Start container
+Setup project
 ```
 cd TO_PATH
 git clone CLONE_URL
-docker-compose -f docker-compose.prod.yml up -d --build
 sudo ufw allow 8086/tcp
+```
+Start container
+```
+cd TO_PATH
+docker-compose -f docker-compose.prod.yml up -d --build
 ```
 Stop container
 ```
