@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Modal from "react-modal";
 import $ from 'jquery';
@@ -22,7 +22,6 @@ const customStyles = {
 const ExportBar = () => {
     const svgJson = useSelector(state => state.svgJson);
 	const file = useSelector(state => state.fileName);
-    const [modalIsOpen, setIsOpen] = useState(false);
 
 	const cutParent = (json , newJson) => {
 		newJson['width'] = json['width'];
@@ -68,23 +67,6 @@ const ExportBar = () => {
 		cutLayers(json['layers'], newJson['layers']);
 		return newJson;
 	}
-	
-    const openModal = () => {
-		setIsOpen(true);
-	};
-
-    const afterOpenModal = () => {
-		try {
-			const newJson = cutJson(svgJson);
-			$('#code-area').text(JSON.stringify(newJson, null, "\t"));
-		} catch (e) {
-			console.log(e);
-		}
-    }
-
-    const closeModal = () => {
-		setIsOpen(false);
-	};
 
 	const hideAllLayers = () => {
 		const mainSvgLayers = $('#main-svg').children();
@@ -156,10 +138,27 @@ const ExportBar = () => {
 		}
 	}
 
+	const copyCodeToClipboard = () => {
+		const codeTextArea = document.getElementById('code-area');
+		navigator.clipboard.writeText(codeTextArea.value);
+	}
+
+	const addCodeToModal = () => {
+		var myModalEl = document.getElementById('exampleModal')
+		myModalEl.addEventListener('shown.bs.modal', function (event) {
+			try {
+				const newJson = cutJson(svgJson);
+				$('#code-area').text(JSON.stringify(newJson, null, "\t"));
+			} catch (e) {
+				console.log(e);
+			}
+		})
+	}
+
     return (
         <div className="d-flex justify-content-between">
 			<div>
-				<button onClick={openModal} className="me-2 btn btn-sm btn-dark">
+				<button className="me-2 btn btn-sm btn-dark" data-bs-toggle="modal" onClick={addCodeToModal} data-bs-target="#exampleModal">
 					<i className="fas fa-code fa-fw"></i>
 				</button>
 				<button onClick={downloadJsonFile} className="btn btn-sm btn-dark">
@@ -182,20 +181,29 @@ const ExportBar = () => {
 					<i className = "fa fa-eye-slash fa-fw"></i>
 				</button>
 			</div>
-            <Modal
-				isOpen={modalIsOpen}
-				onAfterOpen={afterOpenModal}
-				onRequestClose={closeModal}
-				style={customStyles}
-				ariaHideApp={false}
-				contentLabel="Example Modal"
-			>
-				<textarea
-					spellCheck="false"
-					id="code-area"
-					className="w-100 h-100"
-				></textarea>
-			</Modal>
+
+			<div id="exampleModal" className="modal fade text-black" tabIndex="-1">
+				<div className="modal-dialog modal-fullscreen">
+					<div className="modal-content">
+						<div className="modal-header">
+							<h5 className="modal-title" id="exampleModalLabel">JSON code</h5>
+							<button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div className="modal-body">
+							<textarea
+								spellCheck="false"
+								id="code-area"
+								className="w-100 h-100 font-monospace form-control"
+							></textarea>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-dark" onClick={copyCodeToClipboard}><i class="fas fa-copy"></i></button>
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
         </div>
     )
 }

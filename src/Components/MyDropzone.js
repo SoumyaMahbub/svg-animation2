@@ -72,20 +72,15 @@ const MyDropzone = () => {
 		for (var attr in path['attributes']) {
 			path[attr] = path['attributes'][attr];
 		}
+		delete path['attributes'];
 		if (path['id']) {
 			path['name'] = path['id'];
+			delete path['id'];
 		}
 		else if (path['name'] === "g" || path['name'] === "path") {
 			delete path['name'];
 		}
-		delete path['attributes'];
-		if (path['fill'] !== "none") {
-			if (!path['fill']) {
-				path['fill'] = "#000000";
-			}
-			path['fillColor'] = path['fill'];
-			path['fillColor'] = parseHexColor(path['fillColor']);
-		} else if(path['stroke']) {
+		if(path['stroke']) {
 			delete path['fill'];
 			path['strokeColor'] = path['stroke'];
 			path['strokeWidth'] = path['stroke-width'];
@@ -96,7 +91,14 @@ const MyDropzone = () => {
 			delete path['stroke-width'];
 			delete path['stroke-linecap'];
 			delete path['stroke-linejoin'];
-		}
+		}else if (path['fill'] !== "none") {
+			if (!path['fill']) {
+				path['fill'] = "#000000";
+			}
+			path['fillColor'] = path['fill'];
+			delete path['fill']
+			path['fillColor'] = parseHexColor(path['fillColor']);
+		} 
 		path['pathData'] = path['d'];
 		delete path['d'];
 	}
@@ -301,16 +303,18 @@ const MyDropzone = () => {
 				svgEl.children().eq(i).remove();
 			}
 		}
-		if (svgEl.children().length === 1) {
-			const cnt = svgEl.children().eq(0).contents();
-			svgEl.children().eq(0).replaceWith(cnt); 
-		}
 	}
 
 	const parseSvg = (svgString) => {
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(svgString, "image/svg+xml");
 		trimDoc($(doc).children().eq(0));
+		
+		while ($(doc).children().eq(0).children().length === 1) {
+			const cnt = $(doc).children().eq(0).children().eq(0).contents();
+			$(doc).children().eq(0).children().eq(0).replaceWith(cnt);
+		}
+
 		convertToPath(doc);
 		const mainSvg = $(doc).children().eq(0);
 		removeSingleLayerGroup(mainSvg);

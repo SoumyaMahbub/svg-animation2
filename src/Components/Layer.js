@@ -82,14 +82,14 @@ const Layer = (props) => {
 	}
 
 	const unhighlightGroup = () => {
-		selLayer['layers'].forEach(layer => {
+		selLayer['layers'].forEach((layer, idx) => {
 			if (layer.strokeColor) {
-				$(".highlighted").attr('stroke', layer.strokeColor);
+				$(".highlighted").eq(idx).attr('stroke', layer.strokeColor);
 			} else {
-				$(".highlighted").removeAttr('stroke');
+				$(".highlighted").eq(idx).removeAttr('stroke');
 			}
-			$('.highlighted').removeClass('highlighted');
 		})
+		$('.highlighted').removeClass('highlighted');
 	}
 
 	const clickOnLayer = (e) => {
@@ -141,16 +141,16 @@ const Layer = (props) => {
 		}
 	}
 
-	const delay = ms => new Promise(res => setTimeout(res, ms));
-
-	const toggleSubLayers = async (e) => {
-		if ($(e.currentTarget).hasClass('fa-chevron-right')) {
-			$(e.currentTarget).removeClass('fa-chevron-right');
-			$(e.currentTarget).addClass('fa-chevron-down');
-		} else {
-			$(e.currentTarget).removeClass('fa-chevron-down');
-			$(e.currentTarget).addClass('fa-chevron-right');
-		}
+	const toggleSubLayers = (e) => {
+		const myCollapsible = document.getElementById('sublayer_' + props.name);
+		myCollapsible.addEventListener('hidden.bs.collapse', function () {
+			$(e.target).removeClass('fa-chevron-down');
+			$(e.target).addClass('fa-chevron-right');
+		})
+		myCollapsible.addEventListener('shown.bs.collapse', function () {
+			$(e.target).removeClass('fa-chevron-right');
+			$(e.target).addClass('fa-chevron-down');
+		})
 	}
 
 	return (

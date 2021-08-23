@@ -158,30 +158,44 @@ const OperationsContainer = () => {
     }
 
     return (
-        <div className="w-100 bg-white p-4">
-
-            <div className={selLayer.name ? "d-flex mb-3" : "d-flex invisible mb-3"}>
-                <div className="input-group me-3">
-                    <span className="input-group-text">Subtitle</span>
-                    <input type="text" id="subtitle-input" className="form-control" placeholder="Write subtitle for layer here" onBlur={updateSubtitle} autoComplete="off" />
-                </div>
-                <button onClick={deleteLayer} className="flex-shrink-0 btn btn-danger me-3"><i className="fas fa-trash-alt"></i></button>
+        <div className="bg-dark px-4 pt-2 pb-4">
+        <div className="w-100 bg-secondary p-4 shadow rounded-3 position-relative text-white">
+            
+            
+            <div className={selLayer.name ? "d-none" : "d-block position-absolute top-50 start-50 translate-middle w-100 text-center"}>
+               Select a layer or a group to bring up the controls here.
             </div>
 
-
             <div className="row">
+
+                <div className={selLayer.name ? "d-flex mb-3" : "d-flex invisible mb-3"}>
+                    <div className="input-group me-3">
+                        <span className="input-group-text">Subtitle</span>
+                        <input type="text" id="subtitle-input" className="form-control" placeholder="Write subtitle for layer here" onBlur={updateSubtitle} autoComplete="off" />
+                    </div>
+                    <button onClick={deleteLayer} className="flex-shrink-0 btn btn-danger me-3"><i className="fas fa-trash-alt"></i></button>
+                </div>
 
                 <div className={selLayer.name ? "d-flex col mb-2" : "invisible d-flex col mb-2"}>
                     <div className="input-group">
                         <select id="erase-layer-select" className="form-select" defaultValue="1">
                             {options}
                         </select>
-                        <button className="btn btn-secondary" type="button" onClick={addEraseLayer}>Add Erase Layer Below</button>
+                        <button className="btn btn-dark" type="button" onClick={addEraseLayer}>Add Erase Layer Below</button>
                     </div>
                 </div>
 
                 <div className={selLayer.type === 'erase' ? "mx-4 col" : selLayer.type === 'group' ? "mx-4 col" : "invisible mx-4 col"} onChange={changeDrawType}>
-                    <h6 className="mb-0">Mode: </h6>
+                    <div className="btn-group" role="group" aria-label="Basic radio toggle button group">
+                        <input type="radio" data-value="sequential" className="btn-check" name="drawTypeRadio" id="btnradio1" autoComplete="off" id="sequentialRadio"/>
+                        <label className="btn btn-outline-dark" htmlFor="sequentialRadio">Sequential</label>
+
+                        <input type="radio" data-value="parallel" className="btn-check" name="drawTypeRadio" id="btnradio2" autoComplete="off" id="parallelRadio"/>
+                        <label className="btn btn-outline-dark" htmlFor="parallelRadio">Parallel</label>
+                    </div>
+                    
+                    
+                    {/* <h6 className="mb-0">Mode: </h6>
                     <div className="form-check form-check-inline">
                         <input className="form-check-input" data-value="sequential" type="radio" name="drawTypeRadio" id="sequentialRadio" />
                         <label className="form-check-label" htmlFor="sequentialRadio">
@@ -193,12 +207,12 @@ const OperationsContainer = () => {
                         <label className="form-check-label" htmlFor="parallelRadio">
                             Parallel
                         </label>
-                    </div>
-
+                    </div> */}
                 </div>
 
             </div>
 
+        </div>
         </div>
     )
 }

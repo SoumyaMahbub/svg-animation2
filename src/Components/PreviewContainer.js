@@ -7,8 +7,8 @@ const PreviewContainer = () => {
     const fileName = useSelector(state => state.fileName);
     const svgString = useSelector(state => state.svgString);
     return (
-        <div className="flex-grow-1 d-flex bg-dark">
-            <div id="canvas" className="mx-auto my-2 bg-white w-90 h-90 position-relative">
+        <div className="flex-grow-1 d-flex bg-dark pt-4 pb-3">
+            <div id="canvas" className="mx-4 bg-white w-100 h-100 position-relative rounded-3">
             </div>
         </div>
     )
