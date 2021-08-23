@@ -7,7 +7,6 @@ const Layer = (props) => {
 	const svgJson = useSelector((state) => state.svgJson);
 	const selLayer = useSelector((state) => state.selLayer.layer);
 	let selLayerJson = {};
-	let tempColorHex;
 
 	useEffect(() => {
 		// if selLayer exists
@@ -62,7 +61,7 @@ const Layer = (props) => {
 					}
 					throw breakException;
 				}
-				else if (layer.type == 'group') {
+				else if (layer.type === 'group') {
 					return changeSelLayer(layerName, layer["layers"], idx);
 				}
 			});
@@ -141,17 +140,19 @@ const Layer = (props) => {
 		}
 	}
 
-	const toggleSubLayers = (e) => {
-		const myCollapsible = document.getElementById('sublayer_' + props.name);
-		myCollapsible.addEventListener('hidden.bs.collapse', function () {
-			$(e.target).removeClass('fa-chevron-down');
-			$(e.target).addClass('fa-chevron-right');
-		})
-		myCollapsible.addEventListener('shown.bs.collapse', function () {
-			$(e.target).removeClass('fa-chevron-right');
-			$(e.target).addClass('fa-chevron-down');
-		})
-	}
+	useEffect(() => {
+		if (props.type === "group") {
+			const myCollapsible = document.getElementById('sublayer_' + props.name);
+			myCollapsible.addEventListener('hide.bs.collapse', function () {
+				$("[data-layer-name=" + props.name + "]").children().eq(0).children().eq(0).children().eq(0).removeClass('fa-chevron-down');
+				$("[data-layer-name=" + props.name + "]").children().eq(0).children().eq(0).children().eq(0).addClass('fa-chevron-right');
+			})
+			myCollapsible.addEventListener('show.bs.collapse', function () {
+				$("[data-layer-name=" + props.name + "]").children().eq(0).children().eq(0).children().eq(0).removeClass('fa-chevron-right');
+				$("[data-layer-name=" + props.name + "]").children().eq(0).children().eq(0).children().eq(0).addClass('fa-chevron-down');
+			})
+		}
+	})
 
 	return (
 		<div
@@ -172,10 +173,10 @@ const Layer = (props) => {
 					</div>
 					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash fa-fw align-self-center" : "fa fa-eye fa-fw align-self-center"} onClick={toggleVisibilty}></i>
 				</div>
-			:props.type == "group" ?
+			:props.type === "group" ?
 				<div className ="d-flex justify-content-between first-level group">
 					<div className="d-flex">
-						<i className="fas fa-fw fa-chevron-right align-self-center py-2 pe-2" data-bs-toggle="collapse" data-bs-target={"#sublayer_" + props.name} onClick={toggleSubLayers}></i>
+						<i className="fas fa-fw fa-chevron-right align-self-center py-2 pe-2" data-bs-toggle="collapse" data-bs-target={"#sublayer_" + props.name}></i>
 						<p className="my-auto align-self-center flex-grow-0">{props.name}</p>
 					</div>
 					<i className={$("#" + props.name).hasClass('invisible') ? "fa fa-eye-slash fa-fw align-self-center" : "fa fa-eye fa-fw align-self-center"} onClick={toggleVisibilty}></i>

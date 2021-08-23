@@ -1,10 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { useDropzone } from "react-dropzone";
 import { parse } from "svgson";
 import $ from 'jquery';
-import { main } from "@popperjs/core";
-import { remove } from "immutable";
 
 const MyDropzone = () => {
 
@@ -150,7 +148,7 @@ const MyDropzone = () => {
 			const points = el.getAttribute('points').split(/\s+|,/);
 			const x0=points.shift(), y0=points.shift();
 			let pathData = 'M'+x0+','+y0+'L'+points.join(' ');
-			if (el.tagName=='polygon') pathData+='z';
+			if (el.tagName==='polygon') pathData+='z';
 			path.setAttribute('d',pathData);
 			const elAttrs = el.attributes;
 			let i = elAttrs.length;
@@ -259,7 +257,7 @@ const MyDropzone = () => {
 	const convertToPath = (svgDoc) => {
 		const groups = svgDoc.children[0].children;
 		for (var i = 0; i < groups.length; i++) {
-			if (groups[i].nodeName == "g") {
+			if (groups[i].nodeName === "g") {
 				const groupLayers = groups[i].children
 				for (var j = 0; j < groupLayers.length; j++) {
 					if (groupLayers[j].nodeName !== "path") {

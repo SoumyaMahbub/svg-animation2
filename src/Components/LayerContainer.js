@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import Layer from "./Layer";
 
 const LayerContainer = () => {
-	const dispatch = useDispatch();
-	const state = useSelector(state => state)
 	const svgJson = useSelector((state) => state.svgJson);
 	const [layerElements, setLayerElements] = useState([]);
 	let newLayerElements = [];
@@ -23,9 +21,6 @@ const LayerContainer = () => {
 			})
 		}
 	};
-
-	useEffect(() => {
-	}, [state.svgJson])
 	
 	useEffect(() => {
 		if (svgJson.layers) {

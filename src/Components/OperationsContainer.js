@@ -68,7 +68,7 @@ const OperationsContainer = () => {
             dispatch({ type: 'CHANGESELLAYER', payload: newSelLayerObj });
         }
         // add a new layer
-        else if (type == "add") {
+        else if (type === "add") {
             if (selLayerIdx[1] === "") {
                 newLayers = [...layers.slice(0, selLayerIdx[0] + 1), newSelLayerObj, ...layers.slice(selLayerIdx[0] + 1)];
             } else {
@@ -187,10 +187,10 @@ const OperationsContainer = () => {
 
                 <div className={selLayer.type === 'erase' ? "mx-4 col" : selLayer.type === 'group' ? "mx-4 col" : "invisible mx-4 col"} onChange={changeDrawType}>
                     <div className="btn-group" role="group" aria-label="Basic radio toggle button group">
-                        <input type="radio" data-value="sequential" className="btn-check" name="drawTypeRadio" id="btnradio1" autoComplete="off" id="sequentialRadio"/>
+                        <input type="radio" data-value="sequential" className="btn-check" name="drawTypeRadio" autoComplete="off" id="sequentialRadio"/>
                         <label className="btn btn-outline-dark" htmlFor="sequentialRadio">Sequential</label>
 
-                        <input type="radio" data-value="parallel" className="btn-check" name="drawTypeRadio" id="btnradio2" autoComplete="off" id="parallelRadio"/>
+                        <input type="radio" data-value="parallel" className="btn-check" name="drawTypeRadio" autoComplete="off" id="parallelRadio"/>
                         <label className="btn btn-outline-dark" htmlFor="parallelRadio">Parallel</label>
                     </div>
                     

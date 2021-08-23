@@ -1,23 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
-import Modal from "react-modal";
 import $ from 'jquery';
-
-const customStyles = {
-	content: {
-		top: "50%",
-		left: "50%",
-		right: "auto",
-		bottom: "auto",
-		width: "75%",
-		height: "75vh",
-		overflow: "hidden",
-		marginRight: "-50%",
-		fontFamily: "monospace",
-		fontSize: "12px",
-		transform: "translate(-50%, -50%)",
-	},
-};
 
 const ExportBar = () => {
     const svgJson = useSelector(state => state.svgJson);
@@ -74,9 +57,9 @@ const ExportBar = () => {
 		for (var i = 0; i < mainSvgLayers.length; i++) {
 			mainSvgLayers.eq(i).addClass('invisible');
 		}
-		for (var i = 0; i < layerContainerLayers.length; i++){
-			layerContainerLayers.eq(i).children().eq(1).removeClass('fa-eye');
-			layerContainerLayers.eq(i).children().eq(1).addClass('fa-eye-slash');
+		for (var j = 0; j < layerContainerLayers.length; j++){
+			layerContainerLayers.eq(j).children().eq(1).removeClass('fa-eye');
+			layerContainerLayers.eq(j).children().eq(1).addClass('fa-eye-slash');
 		}
 	}
 	
@@ -91,9 +74,9 @@ const ExportBar = () => {
 					}
 				}
 			}
-		for (var i = 0; i < layerContainerLayers.length; i++) {
-			layerContainerLayers.eq(i).children().eq(0).children().eq(1).removeClass('fa-eye-slash');
-			layerContainerLayers.eq(i).children().eq(0).children().eq(1).addClass('fa-eye');
+		for (var k = 0; k < layerContainerLayers.length; k++) {
+			layerContainerLayers.eq(k).children().eq(0).children().eq(1).removeClass('fa-eye-slash');
+			layerContainerLayers.eq(k).children().eq(0).children().eq(1).addClass('fa-eye');
 		}
 	}
 
@@ -118,9 +101,9 @@ const ExportBar = () => {
 			groupLayers.eq(i).children().eq(0).children().eq(0).removeClass('fa-chevron-right');
 			groupLayers.eq(i).children().eq(0).children().eq(0).addClass('fa-chevron-down');
 		}  
-		for(var i = 0; i < groupedLayers.length; i++) {
-			if (groupedLayers.eq(i).hasClass('show') === false) {
-				groupedLayers.eq(i).addClass('show');
+		for(var j = 0; j < groupedLayers.length; j++) {
+			if (groupedLayers.eq(j).hasClass('show') === false) {
+				groupedLayers.eq(j).addClass('show');
 			}
 		}
 	}
@@ -131,9 +114,9 @@ const ExportBar = () => {
 			groupLayers.eq(i).children().eq(0).children().eq(0).removeClass('fa-chevron-down');
 			groupLayers.eq(i).children().eq(0).children().eq(0).addClass('fa-chevron-right');
 		}  
-		for(var i = 0; i < groupedLayers.length; i++) {
-			if (groupedLayers.eq(i).hasClass('show')) {
-				groupedLayers.eq(i).removeClass('show');
+		for(var j = 0; j < groupedLayers.length; j++) {
+			if (groupedLayers.eq(j).hasClass('show')) {
+				groupedLayers.eq(j).removeClass('show');
 			}
 		}
 	}
@@ -196,9 +179,9 @@ const ExportBar = () => {
 								className="w-100 h-100 font-monospace form-control"
 							></textarea>
 						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-dark" onClick={copyCodeToClipboard}><i class="fas fa-copy"></i></button>
-							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<div className="modal-footer">
+							<button type="button" className="btn btn-dark" onClick={copyCodeToClipboard}><i className="fas fa-copy"></i></button>
+							<button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 						</div>
 					</div>
 				</div>
